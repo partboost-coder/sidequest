@@ -15,7 +15,7 @@ Milestone M0 (Oct 6–7). Backlog items 101–108. Decisions from design review:
 | ID  | Task             | Description                             | Dependecies | Status | Assigned To |
 |-----|------------------|-----------------------------------------|-------------|----------|--------|
 | 1.1 | Request Qloo API key | Submit the key request form from the Qloo hackathon developer guide; note the submission date; join the Qloo Discord (#api-help). | None | 🔴 Not Started | USER |
-| 1.2 | GitHub CLI auth | Confirm `gh auth status` is logged in (run `! gh auth login` if not). | None | 🔴 Not Started | USER |
+| 1.2 | GitHub CLI auth | Confirm `gh auth status` is logged in (run `! gh auth login` if not). | None | 🟢 Completed | USER |
 | 1.3 | Mapbox tokens | Create a Mapbox account; copy the default public token; create a secret token with Directions/Geocoding scopes. Share via `.env.local` (not chat). | None | 🔴 Not Started | USER |
 | 1.4 | Supabase project | Create project `sidequest` in US East; enable **Anonymous sign-ins** (Auth → Providers); put URL + anon key in `.env.local`. | None | 🔴 Not Started | USER |
 | 1.5 | Vercel account | Sign up/log in to Vercel with GitHub so the repo can be imported in Phase 2. | None | 🔴 Not Started | USER |
@@ -24,13 +24,13 @@ Milestone M0 (Oct 6–7). Backlog items 101–108. Decisions from design review:
 
 | ID  | Task             | Description                             | Dependecies | Status | Assigned To |
 |-----|------------------|-----------------------------------------|-------------|----------|--------|
-| 2.1 | Scaffold Next.js app | `create-next-app` at repo root (TypeScript strict, App Router, `src/`, Tailwind, ESLint, `@/*` alias) without disturbing `cody.json`/`cody-projects/`; pnpm. | None | 🔴 Not Started | AGENT |
-| 2.2 | Node pinning | `.nvmrc` + `package.json` `engines` set to Node 24.x; note in README. | 2.1 | 🔴 Not Started | AGENT |
-| 2.3 | UI & tooling deps | Add shadcn/ui (init + button, card, input, badge, sheet, sonner), Framer Motion, lucide-react, zod, Prettier, Vitest (+ coverage); scripts `lint`, `typecheck`, `test`, `format`. | 2.1 | 🔴 Not Started | AGENT |
-| 2.4 | Folder skeleton | Create `src/adapters/{qloo,mapbox}`, `src/domain`, `src/agents` (README stubs), `src/lib/{config,session}`, `src/components/{ui,map}`, `docs/`, `scripts/`, `tests/`. | 2.1 | 🔴 Not Started | AGENT |
-| 2.5 | Placeholder home | Simple branded "Sidequest — the road trip built around your taste" page with a link to `/dev/route`. | 2.3 | 🔴 Not Started | AGENT |
-| 2.6 | License, README, gitignore | MIT `LICENSE` (2026, Matthew Nguyen); README stub (pitch, stack, run locally); `.gitignore` covering `.env*.local`, `.vercel`, build output. | 2.1 | 🔴 Not Started | AGENT |
-| 2.7 | Init git & create public repo | `git init`, first commit, `gh repo create sidequest --public --source . --push`; verify GitHub detects the MIT license in About. | 1.2, 2.6 | 🔴 Not Started | AGENT |
+| 2.1 | Scaffold Next.js app | `create-next-app` at repo root (TypeScript strict, App Router, `src/`, Tailwind, ESLint, `@/*` alias) without disturbing `cody.json`/`cody-projects/`; pnpm. | None | 🟢 Completed | AGENT |
+| 2.2 | Node pinning | `.nvmrc` + `package.json` `engines` set to Node 24.x; note in README. | 2.1 | 🟢 Completed | AGENT |
+| 2.3 | UI & tooling deps | Add shadcn/ui (init + button, card, input, badge, sheet, sonner), Framer Motion, lucide-react, zod, Prettier, Vitest (+ coverage); scripts `lint`, `typecheck`, `test`, `format`. | 2.1 | 🟢 Completed | AGENT |
+| 2.4 | Folder skeleton | Create `src/adapters/{qloo,mapbox}`, `src/domain`, `src/agents` (README stubs), `src/lib/{config,session}`, `src/components/{ui,map}`, `docs/`, `scripts/`, `tests/`. | 2.1 | 🟢 Completed | AGENT |
+| 2.5 | Placeholder home | Simple branded "Sidequest — the road trip built around your taste" page with a link to `/dev/route`. | 2.3 | 🟢 Completed | AGENT |
+| 2.6 | License, README, gitignore | MIT `LICENSE` (2026, Matthew Nguyen); README stub (pitch, stack, run locally); `.gitignore` covering `.env*.local`, `.vercel`, build output. | 2.1 | 🟢 Completed | AGENT |
+| 2.7 | Init git & create public repo | `git init`, first commit, `gh repo create sidequest --public --source . --push`; verify GitHub detects the MIT license in About. | 1.2, 2.6 | 🟡 In Progress | AGENT |
 | 2.8 | Connect Vercel | Import the repo in Vercel; set Node 24.x; confirm the production deploy of the placeholder home. | 1.5, 2.7 | 🔴 Not Started | USER |
 | 2.9 | Verify preview deploys | Push a branch and confirm a preview URL builds. | 2.8 | 🔴 Not Started | AGENT |
 
