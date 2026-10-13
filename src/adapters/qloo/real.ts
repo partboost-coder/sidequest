@@ -22,7 +22,9 @@ export interface RealQlooClientOptions {
  */
 export class RealQlooClient implements QlooClient {
   constructor(private readonly options: RealQlooClientOptions) {
-    if (!options.apiKey) throw new QlooError("RealQlooClient requires an API key");
+    if (!options.apiKey) {
+      throw new QlooError("RealQlooClient requires an API key", undefined, false, "bad_request");
+    }
   }
 
   /** Builds a GET request. Auth is the `X-Api-Key` header (never a bearer token or query param). */
@@ -66,5 +68,7 @@ function notImplemented(method: string) {
   return new QlooError(
     `RealQlooClient.${method} is not implemented yet (v0.2.0, items 209/210). Use QLOO_MODE=mock.`,
     501,
+    false,
+    "not_implemented",
   );
 }

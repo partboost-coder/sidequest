@@ -9,7 +9,7 @@ import {
 } from "@turf/turf";
 import type { Feature, MultiPolygon, Polygon, Position } from "geojson";
 
-import type { QlooClient } from "./client";
+import type { QlooClient, RequestOptions } from "./client";
 import { QlooError } from "./client";
 import { MOCK_ENTITIES, MOCK_ENTITY_BY_ID, type MockSearchEntity } from "./fixtures/entities";
 import { MOCK_PLACES, type MockPlace } from "./fixtures/places";
@@ -54,8 +54,9 @@ export interface MockQlooClientOptions {
 export class MockQlooClient implements QlooClient {
   constructor(private readonly options: MockQlooClientOptions = {}) {}
 
-  async search(params: SearchParams): Promise<QlooEntity[]> {
+  async search(params: SearchParams, options?: RequestOptions): Promise<QlooEntity[]> {
     await this.delay();
+    options?.meter?.record({ endpoint: "search", ms: this.options.latencyMs ?? 0, cached: false });
     const q = params.query.trim().toLowerCase();
     if (!q) return [];
     const types = params.types ? new Set<string>(params.types) : undefined;
@@ -99,8 +100,13 @@ export class MockQlooClient implements QlooClient {
     });
   }
 
-  async insights(params: InsightsParams): Promise<InsightsResult> {
+  async insights(params: InsightsParams, options?: RequestOptions): Promise<InsightsResult> {
     await this.delay();
+    options?.meter?.record({
+      endpoint: "insights",
+      ms: this.options.latencyMs ?? 0,
+      cached: false,
+    });
     const interest = interestProfile(params);
     const signalKey = signalFingerprint(params);
     const explain = params.explainability === true;
@@ -171,8 +177,9 @@ export class MockQlooClient implements QlooClient {
     });
   }
 
-  async tags(params: TagsParams): Promise<QlooTag[]> {
+  async tags(params: TagsParams, options?: RequestOptions): Promise<QlooTag[]> {
     await this.delay();
+    options?.meter?.record({ endpoint: "tags", ms: this.options.latencyMs ?? 0, cached: false });
     const q = params.query?.trim().toLowerCase();
     const types = params.tagTypes?.map((t) => t.toLowerCase());
     const list = MOCK_TAG_LIST.filter(
@@ -365,7 +372,12 @@ export function parseWkt(wkt: string): ParsedLocation {
     );
     return { kind: "area", feature: multiPolygon(polys), rings: polys.flat() };
   }
-  throw new QlooError(`MockQlooClient: unsupported filter.location value: ${wkt}`, 400);
+  throw new QlooError(
+    `MockQlooClient: unsupported filter.location value: ${wkt}`,
+    400,
+    false,
+    "bad_request",
+  );
 }
 
 function withinLocation(pl: MockPlace, loc: ParsedLocation, radiusM?: number): boolean {

@@ -6,12 +6,19 @@ import { z } from "zod";
  */
 
 export const QLOO_MODES = ["mock", "real", "record"] as const;
+export const QLOO_CACHES = ["file", "memory", "postgres"] as const;
 export const SESSION_MODES = ["supabase", "dev"] as const;
 
 /** Fixed guest identity used when SESSION_MODE=dev. */
 export const DEFAULT_DEV_USER_ID = "00000000-0000-4000-8000-000000000001";
 
 const optionalString = z.string().trim().optional();
+
+/** "true"/"false"/"1"/"0"/"yes"/"no"/"on"/"off" → boolean (undefined stays undefined). */
+const optionalBool = z
+  .enum(["true", "false", "1", "0", "yes", "no", "on", "off"])
+  .transform((v) => ["true", "1", "yes", "on"].includes(v))
+  .optional();
 
 export const serverEnvSchema = z
   .object({
@@ -20,6 +27,12 @@ export const serverEnvSchema = z
     QLOO_MODE: z.enum(QLOO_MODES).default("mock"),
     QLOO_API_KEY: optionalString,
     QLOO_BASE_URL: z.url().default("https://hackathon.api.qloo.com"),
+    /** Default: file in development, memory elsewhere (resolved below). */
+    QLOO_CACHE: z.enum(QLOO_CACHES).optional(),
+    /** Live calls are refused below this monthly remaining count (except demo seeding). */
+    QLOO_QUOTA_RESERVE: z.coerce.number().int().min(0).default(1000),
+    /** Max live calls per process before the remaining quota is known. */
+    QLOO_UNKNOWN_QUOTA_BUDGET: z.coerce.number().int().min(0).default(25),
 
     MAPBOX_TOKEN: optionalString,
 
@@ -31,6 +44,14 @@ export const serverEnvSchema = z
     SUPABASE_SERVICE_ROLE_KEY: optionalString,
 
     ANTHROPIC_API_KEY: optionalString,
+
+    DATABASE_URL: optionalString,
+    DIRECT_URL: optionalString,
+
+    /** /dev/* and /api/dev/* are served only when true. Default: on except in production. */
+    DEV_ROUTES: optionalBool,
+    /** Set by Vercel at build and runtime. */
+    VERCEL: optionalString,
   })
   .superRefine((env, ctx) => {
     if (env.QLOO_MODE !== "mock" && !env.QLOO_API_KEY) {
@@ -47,6 +68,14 @@ export const serverEnvSchema = z
         message: "MAPBOX_TOKEN (secret token) is required for routing and geocoding",
       });
     }
+    if (env.VERCEL && (env.QLOO_CACHE === "file" || env.QLOO_MODE === "record")) {
+      ctx.addIssue({
+        code: "custom",
+        path: [env.QLOO_CACHE === "file" ? "QLOO_CACHE" : "QLOO_MODE"],
+        message:
+          "The file cache (QLOO_CACHE=file or QLOO_MODE=record) can't run on Vercel's read-only filesystem",
+      });
+    }
     if (env.SESSION_MODE === "supabase") {
       for (const key of ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY"] as const) {
         if (!env[key]) {
@@ -58,7 +87,14 @@ export const serverEnvSchema = z
         }
       }
     }
-  });
+  })
+  .transform((env) => ({
+    ...env,
+    QLOO_CACHE:
+      env.QLOO_CACHE ??
+      (env.QLOO_MODE === "record" || env.NODE_ENV === "development" ? "file" : "memory"),
+    DEV_ROUTES: env.DEV_ROUTES ?? env.NODE_ENV !== "production",
+  }));
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
 

@@ -100,3 +100,55 @@ describe("parseFlags", () => {
     expect(flags.FEATURE_PUBLIC_RECAP).toBe(false);
   });
 });
+
+describe("v0.2.0 env additions", () => {
+  const minimal = { MAPBOX_TOKEN: "pk.test" };
+
+  it("resolves cache and dev-route defaults from NODE_ENV", () => {
+    expect(parseServerEnv({ ...minimal, NODE_ENV: "development" })).toMatchObject({
+      QLOO_CACHE: "file",
+      DEV_ROUTES: true,
+      QLOO_QUOTA_RESERVE: 1000,
+      QLOO_UNKNOWN_QUOTA_BUDGET: 25,
+    });
+    expect(parseServerEnv({ ...minimal, NODE_ENV: "production" })).toMatchObject({
+      QLOO_CACHE: "memory",
+      DEV_ROUTES: false,
+    });
+  });
+
+  it("uses the file cache for record mode and honors explicit values", () => {
+    const env = parseServerEnv({
+      ...minimal,
+      NODE_ENV: "production",
+      QLOO_MODE: "record",
+      QLOO_API_KEY: "k",
+    });
+    expect(env.QLOO_CACHE).toBe("file");
+    expect(
+      parseServerEnv({
+        ...minimal,
+        QLOO_CACHE: "postgres",
+        DEV_ROUTES: "off",
+        QLOO_QUOTA_RESERVE: "250",
+      }),
+    ).toMatchObject({ QLOO_CACHE: "postgres", DEV_ROUTES: false, QLOO_QUOTA_RESERVE: 250 });
+  });
+
+  it("rejects the file cache on Vercel", () => {
+    expect(() => parseServerEnv({ ...minimal, VERCEL: "1", QLOO_CACHE: "file" })).toThrow(
+      /read-only/,
+    );
+    expect(() =>
+      parseServerEnv({ ...minimal, VERCEL: "1", QLOO_MODE: "record", QLOO_API_KEY: "k" }),
+    ).toThrow(/read-only/);
+    expect(parseServerEnv({ ...minimal, VERCEL: "1", NODE_ENV: "production" }).QLOO_CACHE).toBe(
+      "memory",
+    );
+  });
+
+  it("rejects invalid booleans and negative budgets", () => {
+    expect(() => parseServerEnv({ ...minimal, DEV_ROUTES: "maybe" })).toThrow(EnvError);
+    expect(() => parseServerEnv({ ...minimal, QLOO_QUOTA_RESERVE: "-5" })).toThrow(EnvError);
+  });
+});

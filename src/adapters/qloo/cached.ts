@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-import type { QlooClient } from "./client";
+import type { QlooClient, RequestOptions } from "./client";
 import type {
   InsightsParams,
   InsightsResult,
@@ -10,10 +10,16 @@ import type {
   TagsParams,
 } from "./types";
 
-/** Pluggable cache storage. In-memory now; a Postgres-backed store plugs in at v0.2.0 (item 210). */
+/** What a cache entry was for. Stores that persist entries (file, Postgres) keep it for debugging. */
+export interface CacheMeta {
+  method: string;
+  params: unknown;
+}
+
+/** Pluggable cache storage: memory, file (development) or Postgres (item 211). */
 export interface CacheStore {
   get(key: string): Promise<unknown | undefined>;
-  set(key: string, value: unknown, ttlMs: number): Promise<void>;
+  set(key: string, value: unknown, ttlMs: number, meta?: CacheMeta): Promise<void>;
 }
 
 export class MemoryCacheStore implements CacheStore {
@@ -77,29 +83,40 @@ export class CachedQlooClient implements QlooClient {
     private readonly ttlMs = DEFAULT_TTL_MS,
   ) {}
 
-  search(params: SearchParams): Promise<QlooEntity[]> {
-    return this.cached("search", params, () => this.inner.search(params));
+  search(params: SearchParams, options?: RequestOptions): Promise<QlooEntity[]> {
+    return this.cached("search", params, options, () => this.inner.search(params, options));
   }
 
-  insights(params: InsightsParams): Promise<InsightsResult> {
-    return this.cached("insights", params, () => this.inner.insights(params));
+  insights(params: InsightsParams, options?: RequestOptions): Promise<InsightsResult> {
+    return this.cached("insights", params, options, () => this.inner.insights(params, options));
   }
 
-  tags(params: TagsParams): Promise<QlooTag[]> {
-    return this.cached("tags", params, () => this.inner.tags(params));
+  tags(params: TagsParams, options?: RequestOptions): Promise<QlooTag[]> {
+    return this.cached("tags", params, options, () => this.inner.tags(params, options));
   }
 
-  private async cached<T>(method: string, params: unknown, load: () => Promise<T>): Promise<T> {
+  private async cached<T>(
+    method: "search" | "insights" | "tags",
+    params: unknown,
+    options: RequestOptions | undefined,
+    load: () => Promise<T>,
+  ): Promise<T> {
     const key = cacheKey(method, params);
     const hit = await this.store.get(key);
-    if (hit !== undefined) return hit as T;
+    if (hit !== undefined) {
+      options?.meter?.record({ endpoint: method, ms: 0, cached: true });
+      return hit as T;
+    }
 
     const pending = this.inflight.get(key);
-    if (pending) return pending as Promise<T>;
+    if (pending) {
+      options?.meter?.record({ endpoint: method, ms: 0, cached: true });
+      return pending as Promise<T>;
+    }
 
     const promise = load()
       .then(async (value) => {
-        await this.store.set(key, value, this.ttlMs);
+        await this.store.set(key, value, this.ttlMs, { method, params });
         return value;
       })
       .finally(() => this.inflight.delete(key));
