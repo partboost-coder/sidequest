@@ -20,6 +20,7 @@ This document lists features and enhancements derived from the plan. It is a liv
 | B-04 | Social & sharing platform | Feeds, friends, shared discoveries, public quest pages. Post-hackathon vision. | Agent |
 | B-05 | Achievements & progression | Achievement system built on the XP event ledger. Post-hackathon. | Agent |
 | B-06 | Non-US trips & longer trips | Expand beyond US-only and the 2–6 day window. Post-hackathon. | Agent |
+| B-07 | Save Places From Social | Paste a TikTok/Instagram link and Sidequest saves the places in it (like recipe apps that import from social media). Candidate fit: extract places from the post caption → resolve them in Qloo → use them as taste signals, pin the ones near the route, and find similar places along the way. Rough MVP ~1 day (oEmbed caption + LLM extraction + Qloo search); natural slot is onboarding (v0.4.0). Not a replacement for the core product (Qloo rule). | User |
 
 ## v0.1.0-foundations - 🟢 Completed
 M0 (Oct 6–7): Repo, deploy pipeline, adapter interfaces and mocks so the vertical slice can start immediately.
