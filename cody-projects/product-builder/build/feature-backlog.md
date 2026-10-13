@@ -35,7 +35,7 @@ M0 (Oct 6–7): Repo, deploy pipeline, adapter interfaces and mocks so the verti
 | 107 | Mapbox adapter | US geocoding/autocomplete, Directions (geometry, legs, durations), detour helper; route renders on a Mapbox GL map. | High | 🟢 Completed |
 | 108 | Session bootstrap (non-blocking) | Attempt Supabase project + anonymous sign-in; if setup causes friction, use a seeded local session with a fixed user ID and move on. Shipped as dev sessions; Supabase anonymous sessions moved to 212 (local Supabase). | Medium | 🟢 Completed |
 
-## v0.2.0-vertical-slice - 🔴 Not Started
+## v0.2.0-vertical-slice - 🟡 In Progress
 M1 (Oct 8–12): The ugliest complete loop end to end, then real persistence and the Qloo spike.
 
 | ID  | Feature                 | Description                              | Priority | Status |
