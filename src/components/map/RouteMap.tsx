@@ -4,7 +4,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 
 import { bbox, lineString } from "@turf/turf";
 import type { LineString } from "geojson";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Map, { Layer, Marker, Source, type MapRef } from "react-map-gl/mapbox";
 
 import { getClientEnv } from "@/lib/config/env.client";
@@ -21,6 +21,7 @@ const US_VIEW = { longitude: -98.5, latitude: 39.5, zoom: 3.2 };
 
 export default function RouteMap({ geometry, origin, destination, className }: RouteMapProps) {
   const mapRef = useRef<MapRef>(null);
+  const [loaded, setLoaded] = useState(false);
   const token = getClientEnv().NEXT_PUBLIC_MAPBOX_TOKEN;
 
   const bounds = useMemo(() => {
@@ -32,9 +33,11 @@ export default function RouteMap({ geometry, origin, destination, className }: R
     ] as [[number, number], [number, number]];
   }, [geometry]);
 
-  const fit = () => {
-    if (bounds) mapRef.current?.fitBounds(bounds, { padding: 56, duration: 800 });
-  };
+  // Fit whenever the route changes once the map is ready. The map and the route load
+  // independently, so either can finish first.
+  useEffect(() => {
+    if (loaded && bounds) mapRef.current?.fitBounds(bounds, { padding: 56, duration: 800 });
+  }, [loaded, bounds]);
 
   if (!token) {
     return (
@@ -55,7 +58,7 @@ export default function RouteMap({ geometry, origin, destination, className }: R
         mapboxAccessToken={token}
         mapStyle={STYLE}
         initialViewState={US_VIEW}
-        onLoad={fit}
+        onLoad={() => setLoaded(true)}
         style={{ position: "absolute", inset: 0, borderRadius: "0.75rem" }}
         reuseMaps
       >

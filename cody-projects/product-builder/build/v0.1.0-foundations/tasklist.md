@@ -84,8 +84,8 @@ Milestone M0 (Oct 6–7). Backlog items 101–108. Decisions from design review:
 
 | ID  | Task             | Description                             | Dependecies | Status | Assigned To |
 |-----|------------------|-----------------------------------------|-------------|----------|--------|
-| 7.1 | Health endpoint | `GET /api/health` reports Qloo mode, session mode, Mapbox reachability, flags (no secrets). | 4.8, 5.2, 6.1 | 🔴 Not Started | AGENT |
+| 7.1 | Health endpoint | `GET /api/health` reports Qloo mode, session mode, Mapbox reachability, flags (no secrets). | 4.8, 5.2, 6.1 | 🟢 Completed | AGENT |
 | 7.2 | Vercel env vars | Add all variables to Production + Preview (`QLOO_MODE=mock`); restrict the public Mapbox token to the Vercel and localhost URLs. | 2.8, 3.4 | 🔴 Not Started | USER |
-| 7.3 | Quality gate | `pnpm lint && pnpm typecheck && pnpm test` all green. | 3.5, 4.9, 5.7 | 🔴 Not Started | AGENT |
+| 7.3 | Quality gate | `pnpm lint && pnpm typecheck && pnpm test` all green. | 3.5, 4.9, 5.7 | 🟢 Completed | AGENT |
 | 7.4 | Production verification | On the production URL: home loads, `/dev/route` renders the route, `/api/health` is healthy, session persists. | 7.1, 7.2, 7.3 | 🔴 Not Started | USER |
-| 7.5 | M0 exit check | Confirm M0 exit criteria: key requested, public MIT repo, deployed app, route renders, Qloo interface + mock, session seam ready. | 7.4 | 🔴 Not Started | AGENT |
+| 7.5 | M0 exit check | Confirm M0 exit criteria: key requested, public MIT repo, deployed app, route renders, Qloo interface + mock, session seam ready. | 7.4 | 🟡 In Progress | AGENT |
