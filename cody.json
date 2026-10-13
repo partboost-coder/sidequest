@@ -2,11 +2,11 @@
   "cody-product-builder": {
     "name": "Sidequest",
     "description": "Agentic, Qloo-powered road-trip companion that builds personalized adventures and Side Quests around the combined tastes of everyone in the car.",
-    "version": "0.0.0",
+    "version": "0.1.0",
     "phase": "build",
     "projectPath": "cody-projects/product-builder",
     "releaseNotesPath": "{{projectPath}}",
     "createdAt": "2026-10-06",
-    "updatedAt": "2026-10-06"
+    "updatedAt": "2026-10-12"
   }
 }

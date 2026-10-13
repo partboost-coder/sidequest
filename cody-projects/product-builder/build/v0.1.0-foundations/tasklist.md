@@ -32,7 +32,7 @@ Milestone M0 (Oct 6–7). Backlog items 101–108. Decisions from design review:
 | 2.6 | License, README, gitignore | MIT `LICENSE` (2026, Matthew Nguyen); README stub (pitch, stack, run locally); `.gitignore` covering `.env*.local`, `.vercel`, build output. | 2.1 | 🟢 Completed | AGENT |
 | 2.7 | Init git & create public repo | `git init`, first commit, `gh repo create sidequest --public --source . --push`; verify GitHub detects the MIT license in About. | 1.2, 2.6 | 🟢 Completed | AGENT |
 | 2.8 | Connect Vercel | Import the repo in Vercel; set Node 24.x; confirm the production deploy of the placeholder home. | 1.5, 2.7 | 🟢 Completed | USER |
-| 2.9 | Verify preview deploys | Push a branch and confirm a preview URL builds. | 2.8 | 🔴 Not Started | AGENT |
+| 2.9 | Verify preview deploys | Push a branch and confirm a preview URL builds. | 2.8 | 🟢 Completed | AGENT |
 
 ## Phase 3 – Config & Feature Flags (item 105)
 
@@ -87,5 +87,5 @@ Milestone M0 (Oct 6–7). Backlog items 101–108. Decisions from design review:
 | 7.1 | Health endpoint | `GET /api/health` reports Qloo mode, session mode, Mapbox reachability, flags (no secrets). | 4.8, 5.2, 6.1 | 🟢 Completed | AGENT |
 | 7.2 | Vercel env vars | Add all variables to Production + Preview (`QLOO_MODE=mock`); restrict the public Mapbox token to the Vercel and localhost URLs. | 2.8, 3.4 | 🟢 Completed | USER |
 | 7.3 | Quality gate | `pnpm lint && pnpm typecheck && pnpm test` all green. | 3.5, 4.9, 5.7 | 🟢 Completed | AGENT |
-| 7.4 | Production verification | On the production URL: home loads, `/dev/route` renders the route, `/api/health` is healthy, session persists. | 7.1, 7.2, 7.3 | 🔴 Not Started | USER |
-| 7.5 | M0 exit check | Confirm M0 exit criteria: key requested, public MIT repo, deployed app, route renders, Qloo interface + mock, session seam ready. | 7.4 | 🟡 In Progress | AGENT |
+| 7.4 | Production verification | On the production URL: home loads, `/dev/route` renders the route, `/api/health` is healthy, session persists. | 7.1, 7.2, 7.3 | 🟢 Completed | USER |
+| 7.5 | M0 exit check | Confirm M0 exit criteria: key requested, public MIT repo, deployed app, route renders, Qloo interface + mock, session seam ready. | 7.4 | 🟢 Completed | AGENT |

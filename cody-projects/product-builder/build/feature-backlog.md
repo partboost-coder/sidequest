@@ -21,19 +21,19 @@ This document lists features and enhancements derived from the plan. It is a liv
 | B-05 | Achievements & progression | Achievement system built on the XP event ledger. Post-hackathon. | Agent |
 | B-06 | Non-US trips & longer trips | Expand beyond US-only and the 2–6 day window. Post-hackathon. | Agent |
 
-## v0.1.0-foundations - 🟡 In Progress
+## v0.1.0-foundations - 🟢 Completed
 M0 (Oct 6–7): Repo, deploy pipeline, adapter interfaces and mocks so the vertical slice can start immediately.
 
 | ID  | Feature                 | Description                              | Priority | Status |
 |-----|-------------------------|------------------------------------------|----------|--------|
-| 101 | Qloo key & community | Submit the Qloo hackathon API key request (today) and join the Qloo Discord (#api-help). | High | 🔴 Not Started |
-| 102 | Repo & license | Public GitHub repo with a detectable MIT `LICENSE`; README stub. | High | 🔴 Not Started |
-| 103 | App scaffold | Next.js App Router + TypeScript + Tailwind + shadcn/ui + Framer Motion; ESLint/Prettier; Vitest configured. | High | 🔴 Not Started |
-| 104 | Vercel deploy | Vercel project linked; production on `main`, preview deploys on branches; env vars wired. | High | 🔴 Not Started |
-| 105 | Config & feature flags | Typed env config (`QLOO_MODE`, keys) and `FEATURE_*` flags for every P1 cuttable item. | High | 🔴 Not Started |
-| 106 | Qloo adapter interface + mock | `QlooClient` interface (search, insights, tags) with Zod types; `MockQlooClient` built from documented response shapes; `CachedQlooClient` wrapper skeleton. | High | 🔴 Not Started |
-| 107 | Mapbox adapter | US geocoding/autocomplete, Directions (geometry, legs, durations), detour helper; route renders on a Mapbox GL map. | High | 🔴 Not Started |
-| 108 | Session bootstrap (non-blocking) | Attempt Supabase project + anonymous sign-in; if setup causes friction, use a seeded local session with a fixed user ID and move on. | Medium | 🔴 Not Started |
+| 101 | Qloo key & community | Submit the Qloo hackathon API key request (today) and join the Qloo Discord (#api-help). | High | 🟢 Completed |
+| 102 | Repo & license | Public GitHub repo with a detectable MIT `LICENSE`; README stub. | High | 🟢 Completed |
+| 103 | App scaffold | Next.js App Router + TypeScript + Tailwind + shadcn/ui + Framer Motion; ESLint/Prettier; Vitest configured. | High | 🟢 Completed |
+| 104 | Vercel deploy | Vercel project linked; production on `main`, preview deploys on branches; env vars wired. | High | 🟢 Completed |
+| 105 | Config & feature flags | Typed env config (`QLOO_MODE`, keys) and `FEATURE_*` flags for every P1 cuttable item. | High | 🟢 Completed |
+| 106 | Qloo adapter interface + mock | `QlooClient` interface (search, insights, tags) with Zod types; `MockQlooClient` built from documented response shapes; `CachedQlooClient` wrapper skeleton. | High | 🟢 Completed |
+| 107 | Mapbox adapter | US geocoding/autocomplete, Directions (geometry, legs, durations), detour helper; route renders on a Mapbox GL map. | High | 🟢 Completed |
+| 108 | Session bootstrap (non-blocking) | Attempt Supabase project + anonymous sign-in; if setup causes friction, use a seeded local session with a fixed user ID and move on. Shipped as dev sessions; Supabase anonymous sessions moved to 212 (local Supabase). | Medium | 🟢 Completed |
 
 ## v0.2.0-vertical-slice - 🔴 Not Started
 M1 (Oct 8–12): The ugliest complete loop end to end, then real persistence and the Qloo spike.
@@ -51,7 +51,7 @@ M1 (Oct 8–12): The ugliest complete loop end to end, then real persistence and
 | 209 | Qloo API spike (S1–S8) | Once the key arrives: test polygon `filter.location` + URL limits, explainability, heatmap, `filter.entities` scoring, `/search` quality, place tags, affinity distribution/latency, tag inference. Record findings in `docs/qloo-findings.md` and fixtures. | High | 🔴 Not Started |
 | 210 | Real Qloo client + cache | `RealQlooClient` with concurrency limit, retry/backoff, timeouts; Postgres-backed cache; `record` mode producing fixtures. | High | 🔴 Not Started |
 | 211 | Persistence & data model | Prisma schema in Supabase Postgres (users, travelers, signals, trips, days, candidates, stops, side quests, journal, XP ledger, agent runs/events, cache); slice state moved to the DB. | High | 🔴 Not Started |
-| 212 | Anonymous guest sessions | Replace any seeded session with Supabase anonymous users; ownership checks on every row. | High | 🔴 Not Started |
+| 212 | Anonymous guest sessions | Local Supabase (CLI + Docker) with anonymous users via `@supabase/ssr` and Next 16 `proxy`; replaces dev sessions; ownership checks on every row. Hosted Supabase project before deploying persistence. | High | 🔴 Not Started |
 
 ## v0.3.0-taste-engine-planner - 🔴 Not Started
 M2 (Oct 13–16): Real recommendation quality, a believable multi-day plan, and the visible Planner agent.
