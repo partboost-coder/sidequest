@@ -46,15 +46,17 @@ export default function RouteMap({ geometry, origin, destination, className }: R
     );
   }
 
+  // The Map is absolutely positioned so it fills the wrapper even when the wrapper's height
+  // comes from min-height or flex (a plain height: 100% would collapse to 0).
   return (
-    <div className={className}>
+    <div className={`relative ${className ?? ""}`}>
       <Map
         ref={mapRef}
         mapboxAccessToken={token}
         mapStyle={STYLE}
         initialViewState={US_VIEW}
         onLoad={fit}
-        style={{ width: "100%", height: "100%", borderRadius: "0.75rem" }}
+        style={{ position: "absolute", inset: 0, borderRadius: "0.75rem" }}
         reuseMaps
       >
         {geometry && (
