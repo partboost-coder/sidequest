@@ -64,12 +64,19 @@ The HTTP status of a rate-limited response wasn't recorded (the body was `{"erro
 - Favorites' own tags are cross-domain (e.g. Wikipedia categories for brands, plot keywords for films) and rarely overlap with place tags.
 
 ### First live demo-route scan (2026-10-13, Phase 3)
+
 - Anaheim → Denver: 7 segments (WKT ≤ 740 chars), **18 calls, ~7 s** cold; 0 calls cached.
 - 211 raw results → 160 kept (9 chains dropped: Starbucks ×3, Denny's, Chili's, Dave & Buster's ×2, Barnes & Noble, Urban Outfitters).
 - Most segments return a full 15 per bucket; **the San Rafael Swell segment (km 930–1163) has only 2 + 2**. That is genuinely sparse.
 - **Scoring must be balanced per segment:** ranking the top 100 trip-wide gave LA/Vegas/Denver 85 of 100 slots. Per-segment selection (~14 each) surfaces rural picks such as Mystic Hot Springs, Fishlake National Forest and San Rafael Reef (Matt 90–98).
 - Group fit is honestly lower on rural stretches (both travelers rarely love the same small-town place). Watch this in the 5.8 quality review.
 - Oddities to tune in 5.8: `tourist_attraction` pulls in golf clubs; cocktail bars (Death & Co, Mezcla) land in the food bucket.
+
+### Calibration finding (2026-10-13, Phase 4 preview on cached data, 0 calls)
+- With **trip-wide** percentiles, only metro-area places reach high group fit: 5 Side Quest candidates with G ≥ 0.80, all near Anaheim. The Scout fired **once** (needs ≥ 2), and day 3 had 2 stops.
+- Lowering thresholds only yields mediocre offers (52–53%). Blending group fit with single-traveler delight (S = wG·G + wD·D) gave 0 offers.
+- **Local calibration** (percentiles among candidates within ±200 km) gives 2/4/4/4 stops per day and 2 Side Quests: Gui BBQ (86%) and **Mystic Hot Springs (84%, Matt 93, +18 min)**. ±300 km gives only 1 offer.
+- Pending product decision: what "Your Vibe %" is relative to (the trip vs. the stretch of road).
 
 ### Recommendation quality findings
 

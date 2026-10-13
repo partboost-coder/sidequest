@@ -53,11 +53,11 @@ Decisions: you pick the demo favorites from real search results; travelers are "
 
 | ID  | Task             | Description                             | Dependecies | Status | Assigned To |
 |-----|------------------|-----------------------------------------|-------------|----------|--------|
-| 4.1 | Naive itinerary | `src/domain/itinerary/naive.ts`: equal-distance days; per day candidates with `G ≥ 0.60` and detour ≤ 10 min; up to 4, at least 2 if available, ≤ 2 per bucket; ordered along the route; unused pool returned for the Scout. | 3.2, 3.5 | 🔴 Not Started | AGENT |
-| 4.2 | Scout trigger | `src/domain/scout`: window [+5, +80] km, detour 5–25 min; robust z = (G − median) / max(1.4826·MAD, 0.03); baseline ±150 km with ≥ 8 samples else trip-wide; fire at z ≥ 1.5 and G ≥ 0.80; 150 km cooldown; ≤ 2/day; template titles. | 4.1 | 🔴 Not Started | AGENT |
-| 4.3 | XP rules | `src/domain/xp`: Side Quest = 100 + clamped match bonus (0–50) + min(2·detour, 50); check-in = 50 + clamped match bonus. | None | 🔴 Not Started | AGENT |
-| 4.4 | Template "why" | `src/domain/explain`: per-traveler % + tag overlap with each traveler's `tasteTags` + description/specialty-dish snippet; explainability only breaks ties. | 3.5, 2.3 | 🔴 Not Started | AGENT |
-| 4.5 | Logic tests | Day split rules; Scout fires on an outlier, MAD floor, small-sample fallback, window, cooldown, daily cap, no repeats; XP clamping; why text. | 4.1–4.4 | 🔴 Not Started | AGENT |
+| 4.1 | Naive itinerary | `src/domain/itinerary/naive.ts`: equal-distance days; per day candidates with `G ≥ 0.60` and detour ≤ 10 min; up to 4, at least 2 if available, ≤ 2 per bucket; ordered along the route; unused pool returned for the Scout. | 3.2, 3.5 | 🟢 Completed | AGENT |
+| 4.2 | Scout trigger | `src/domain/scout`: window [+5, +80] km, detour 5–25 min; robust z = (G − median) / max(1.4826·MAD, 0.03); baseline ±150 km with ≥ 8 samples else trip-wide; fire at z ≥ 1.5 and G ≥ 0.80; 150 km cooldown; ≤ 2/day; template titles. | 4.1 | 🟢 Completed | AGENT |
+| 4.3 | XP rules | `src/domain/xp`: Side Quest = 100 + clamped match bonus (0–50) + min(2·detour, 50); check-in = 50 + clamped match bonus. | None | 🟢 Completed | AGENT |
+| 4.4 | Template "why" | `src/domain/explain`: per-traveler % + tag overlap with each traveler's `tasteTags` + description/specialty-dish snippet; explainability only breaks ties. | 3.5, 2.3 | 🟢 Completed | AGENT |
+| 4.5 | Logic tests | Day split rules; Scout fires on an outlier, MAD floor, small-sample fallback, window, cooldown, daily cap, no repeats; XP clamping; why text. | 4.1–4.4 | 🟢 Completed | AGENT |
 
 ## Phase 5 – Slice Harness, Live Run & Checkpoint (items 205, 206, 208 UI)
 
