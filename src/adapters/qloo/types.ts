@@ -42,6 +42,15 @@ export const rawTagSchema = z.looseObject({
   subtype: z.string().optional(),
 });
 
+/** `{ id, name, type, weight }` items used by specialty_dishes and good_for. */
+function rawTagLikeSchema() {
+  return z.looseObject({
+    id: z.string().optional(),
+    name: z.string(),
+    weight: z.number().optional(),
+  });
+}
+
 export const rawEntitySchema = z.looseObject({
   entity_id: z.string(),
   name: z.string(),
@@ -72,13 +81,21 @@ export const rawEntitySchema = z.looseObject({
         })
         .optional(),
       hours: z.unknown().optional(),
-      keywords: z.unknown().optional(),
+      keywords: z
+        .array(z.looseObject({ name: z.string(), count: z.number().optional() }))
+        .optional(),
+      description: z.string().optional(),
+      short_description: z.string().optional(),
+      is_closed: z.boolean().optional(),
+      specialty_dishes: z.array(rawTagLikeSchema()).optional(),
+      good_for: z.array(rawTagLikeSchema()).optional(),
     })
     .optional(),
   tags: z.array(rawTagSchema).optional(),
   query: z
     .looseObject({
       affinity: z.number().optional(),
+      distance: z.number().optional(),
       explainability: z.unknown().optional(),
     })
     .optional(),
@@ -141,6 +158,18 @@ export interface QlooEntity {
   priceLevel?: number;
   imageUrl?: string;
   hours?: unknown;
+  /** Editorial description (places, brands…), when available. */
+  description?: string;
+  shortDescription?: string;
+  /** e.g. ["Corn Dog", "Hamburger Frites"] (places). */
+  specialtyDishes?: string[];
+  /** e.g. ["Good for kids"] (places). */
+  goodFor?: string[];
+  /** Top review keywords by count (places). */
+  keywords?: { name: string; count?: number }[];
+  isClosed?: boolean;
+  /** `query.distance` in meters from the location signal/filter, when reported. */
+  distanceM?: number;
   tags: QlooTag[];
   /** `query.affinity`, normalized 0–1. Present on Insights results. */
   affinity?: number;

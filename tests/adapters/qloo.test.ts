@@ -399,3 +399,53 @@ describe("createQlooClient", () => {
     expect(client.inner).toBeInstanceOf(RealQlooClient);
   });
 });
+
+describe("normalize: place properties (shapes observed in the spike)", () => {
+  it("maps descriptions, dishes, good-for, keywords, closed flag and distance", () => {
+    const [place] = normalizeInsightsResponse({
+      success: true,
+      results: {
+        entities: [
+          {
+            entity_id: "p1",
+            name: "Synthetic Diner",
+            type: "urn:entity:place",
+            subtype: "urn:entity:place",
+            properties: {
+              description: "A roadside diner.",
+              short_description: "Diner.",
+              is_closed: false,
+              specialty_dishes: [
+                { id: "urn:tag:specialty_dish:place:corn_dog", name: "Corn Dog", weight: 1 },
+              ],
+              good_for: [
+                { id: "urn:tag:children:place:good_kids", name: "Good for kids", weight: 0.5 },
+              ],
+              keywords: Array.from({ length: 12 }, (_, i) => ({ name: `k${i}`, count: 100 - i })),
+            },
+            query: { affinity: 0.8, distance: 884 },
+          },
+        ],
+      },
+    }).entities;
+    expect(place).toMatchObject({
+      types: ["urn:entity:place"],
+      description: "A roadside diner.",
+      shortDescription: "Diner.",
+      isClosed: false,
+      specialtyDishes: ["Corn Dog"],
+      goodFor: ["Good for kids"],
+      distanceM: 884,
+    });
+    expect(place.keywords).toHaveLength(10);
+  });
+
+  it("mock places carry the same fields", async () => {
+    const { entities } = await new MockQlooClient().insights({
+      filterType: "urn:entity:place",
+      take: 1,
+    });
+    expect(entities[0]).toMatchObject({ isClosed: false, mock: true });
+    expect(entities[0].description).toContain("mock data");
+  });
+});

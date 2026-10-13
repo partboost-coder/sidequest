@@ -289,6 +289,11 @@ function rawEntityFromPlace(pl: MockPlace, affinity: number, explainability?: un
       price_level: pl.priceLevel,
       geocode: { city: pl.town, admin1_region: pl.region, country_code: "US" },
       hours: pl.hours,
+      description: `${pl.name} is a ${pl.subtype.replace("_", " ")} in ${pl.town}, ${pl.region} (mock data).`,
+      is_closed: false,
+      keywords: pl.tags
+        .slice(0, 3)
+        .map((k, i) => ({ name: MOCK_TAGS[k].name.toLowerCase(), count: 30 - i * 10 })),
     },
     tags: pl.tags.map(rawTag),
     query: { affinity, ...(explainability ? { explainability } : {}) },
