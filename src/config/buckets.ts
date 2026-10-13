@@ -66,7 +66,10 @@ export const BUCKETS: Record<BucketId, Bucket> = {
   },
 };
 
-/** Never recommended as stops or Side Quests (passed as `filter.exclude.tags`). */
+/**
+ * Never recommended as stops or Side Quests: passed as `filter.exclude.tags` and re-checked by the
+ * quality filters. Every ID below was seen on real Qloo places.
+ */
 export const EXCLUDED_TAGS: string[] = [
   t("category:place:casino"),
   t("genre:place:casino"),
@@ -83,4 +86,37 @@ export const EXCLUDED_TAGS: string[] = [
   t("category:place:car_dealer"),
   t("category:place:car_wash"),
   t("category:place:car_rental_agency"),
+  // Seen in the first live plan (task 5.8): golf via tourist_attraction, nightlife on a day drive.
+  // IDs taken from real Qloo place tags.
+  t("category:place:golf_course"),
+  t("genre:place:golf_course"),
+  t("category:place:golf_club"),
+  t("genre:place:golf_club"),
+  t("category:place:public_golf_course"),
+  t("category:place:night_club"),
+  t("genre:place:night_club"),
+  t("category:place:dance_club"),
+  t("genre:place:dance_club"),
+  t("category:place:dance_hall"),
+  t("genre:place:dance_hall"),
+  t("category:place:hookah_bar"),
+  t("genre:place:hookah_bar"),
+  t("category:place:karaoke_bar"),
+  t("genre:place:karaoke_bar"),
+  t("category:place:adult_entertainment_club"),
+  t("genre:place:adult_entertainment_club"),
+  t("activity_type:qloo:adult_entertainment"),
+  t("setting:qloo:gentlemen_s_club"),
+  // Venues inside casino resorts (the Strip): "0 casinos" covers what's inside them too.
+  t("genre:place:casino_hotel"),
+  t("genre:place:hotel:casino"),
+  t("genre:place:restaurant:casino"),
+  t("activity_type:qloo:casino_gaming"),
+  t("setting:qloo:casino"),
+  t("setting:qloo:casino_resort"),
+  t("setting:qloo:casino_property"),
+  t("setting:qloo:casino_level"),
+  t("setting:qloo:casino_theater"),
+  t("view:qloo:casino_floor_view"),
+  t("view:qloo:casino_floor_views"),
 ];

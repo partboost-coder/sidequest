@@ -43,3 +43,51 @@ export const MOCK_TAGS = {
 export type MockTagKey = keyof typeof MOCK_TAGS;
 
 export const MOCK_TAG_LIST = Object.values(MOCK_TAGS);
+
+/**
+ * Real Qloo place-tag IDs (validated in v0.2.0 task 2.4, used by the corridor-scan buckets and
+ * exclusions) → the mock tags they correspond to, so mock `filter.tags` / `filter.exclude.tags`
+ * behave like the real API. Tag IDs only; no Qloo response data.
+ */
+const real = (suffixes: string[], key: MockTagKey) =>
+  suffixes.map((s) => [`urn:tag:${s}`, key] as const);
+
+export const REAL_TAG_ALIASES = new Map<string, MockTagKey>([
+  ...real(
+    ["category:place:vietnamese_restaurant", "genre:place:restaurant:vietnamese"],
+    "vietnamese",
+  ),
+  ...real(["category:place:mexican_restaurant", "genre:place:restaurant:mexican"], "mexican"),
+  ...real(["category:place:taco_restaurant", "genre:place:restaurant:taco"], "tacos"),
+  ...real(
+    [
+      "category:place:coffee_shop",
+      "genre:place:restaurant:coffee_shop",
+      "category:place:cafe",
+      "genre:place:restaurant:cafe",
+    ],
+    "coffee",
+  ),
+  ...real(["category:place:bakery", "genre:place:restaurant:bakery"], "bakery"),
+  ...real(["category:place:diner", "genre:place:restaurant:diner"], "diner"),
+  ...real(["category:place:barbecue_restaurant", "genre:place:restaurant:barbecue"], "bbq"),
+  ...real(["category:place:hiking_area", "genre:place:hiking_area"], "hiking"),
+  ...real(["category:place:scenic_spot", "genre:place:scenic_spot"], "viewpoint"),
+  ...real(["category:place:national_park", "category:place:state_park"], "nationalPark"),
+  ...real(["category:place:art_gallery", "genre:place:art_gallery"], "artGallery"),
+  ...real(["category:place:art_museum", "category:place:museum", "genre:place:museum"], "museum"),
+  ...real(
+    [
+      "category:place:vintage_clothing_store",
+      "category:place:thrift_store",
+      "category:place:antique_store",
+    ],
+    "vintage",
+  ),
+  ...real(["category:place:record_store"], "recordStore"),
+  ...real(["category:place:live_music_venue"], "liveMusic"),
+  ...real(["category:place:hot_spring"], "hotSprings"),
+  ...real(["category:place:car_racing_track"], "carMuseum"),
+  ...real(["category:place:tourist_attraction", "genre:place:tourist_attraction"], "roadside"),
+  ...real(["category:place:hotel", "genre:place:hotel"], "hotel"),
+]);

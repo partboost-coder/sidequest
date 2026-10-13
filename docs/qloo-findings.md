@@ -73,10 +73,22 @@ The HTTP status of a rate-limited response wasn't recorded (the body was `{"erro
 - Oddities to tune in 5.8: `tourist_attraction` pulls in golf clubs; cocktail bars (Death & Co, Mezcla) land in the food bucket.
 
 ### Calibration finding (2026-10-13, Phase 4 preview on cached data, 0 calls)
+
 - With **trip-wide** percentiles, only metro-area places reach high group fit: 5 Side Quest candidates with G ≥ 0.80, all near Anaheim. The Scout fired **once** (needs ≥ 2), and day 3 had 2 stops.
 - Lowering thresholds only yields mediocre offers (52–53%). Blending group fit with single-traveler delight (S = wG·G + wD·D) gave 0 offers.
 - **Local calibration** (percentiles among candidates within ±200 km) gives 2/4/4/4 stops per day and 2 Side Quests: Gui BBQ (86%) and **Mystic Hot Springs (84%, Matt 93, +18 min)**. ±300 km gives only 1 offer.
-- Pending product decision: what "Your Vibe %" is relative to (the trip vs. the stretch of road).
+- **Decision (2026-10-13): local ±200 km calibration.** "Your Vibe %" means "how well this fits your crew compared with this stretch of road".
+
+### First live slice plan (2026-10-13, v0.2.0 task 5.7)
+
+- Fresh plan: **18 calls, ~8 s**; cached re-plan: **0 calls**. 158 candidates kept, 100 scored, 4 days with 2/4/4/4 stops, Side Quests: Gui BBQ (88%) and Mystic Hot Springs (88%, z 3.0, +18 min).
+- **Unwanted places that slipped through** the bucket tags, and the real tag IDs now excluded (`EXCLUDED_TAGS`):
+  - Golf via `tourist_attraction`: `category|genre:place:golf_course`, `golf_club`, `public_golf_course`.
+  - Nightlife: `night_club`, `dance_club`, `dance_hall`, `hookah_bar`, `karaoke_bar`.
+  - **A strip club** via `tourist_attraction`: `category|genre:place:adult_entertainment_club`, `activity_type:qloo:adult_entertainment`, `setting:qloo:gentlemen_s_club`.
+  - **Restaurants inside Strip casinos** (no casino category): `setting:qloo:casino_resort`, `setting:qloo:casino*`, `view:qloo:casino_floor_view(s)`, `genre:place:restaurant:casino`.
+- Chains added: Crumbl, House of Blues, minus5 ICEBAR.
+- Remaining for review: Las Vegas picks are weak (Gimik Republik restobar; Virgil's has 2 locations); Death & Co is tagged `coffee_shop` by Qloo, so "why" says "Alex's love of coffee" for a cocktail bar.
 
 ### Recommendation quality findings
 

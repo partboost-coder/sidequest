@@ -50,6 +50,19 @@ export function especiallyFor(
     .map(([id]) => id);
 }
 
+export interface ScoringOptions {
+  /**
+   * Local calibration: each percentile is ranked among candidates within ±radius km along the
+   * route, so "94%" means "one of the best matches on this stretch of road". Omit to rank against
+   * the whole trip (metro areas then crowd out rural stretches; see docs/qloo-findings.md).
+   */
+  calibrationRadiusKm?: number;
+  /** With local calibration, always rank against at least this many nearest candidates. */
+  minCalibrationSamples?: number;
+}
+
+export const SCORING_DEFAULTS = { calibrationRadiusKm: 200, minCalibrationSamples: 10 } as const;
+
 /**
  * Naive group scoring (v0.2.0). `affinities[travelerId][candidateId]` holds each traveler's raw
  * Qloo affinity. Candidates missing a traveler's affinity are dropped (they can't be scored fairly).
@@ -57,19 +70,22 @@ export function especiallyFor(
 export function scoreCandidates(
   candidates: Candidate[],
   affinities: Record<string, Record<string, number>>,
+  options: ScoringOptions = {},
 ): Candidate[] {
   const travelerIds = Object.keys(affinities);
   const scorable = candidates.filter((c) =>
     travelerIds.every((t) => affinities[t][c.id] !== undefined),
   );
-  const percentiles: Record<string, number[]> = Object.fromEntries(
-    travelerIds.map((t) => [t, percentileRanks(scorable.map((c) => affinities[t][c.id]))]),
-  );
+  const percentileOf = (t: string, i: number): number => {
+    const peers = calibrationPeers(scorable, i, options);
+    const ranks = percentileRanks(peers.map((c) => affinities[t][c.id]));
+    return ranks[peers.indexOf(scorable[i])];
+  };
   return scorable.map((c, i) => {
     const scores: Record<string, TravelerScore> = Object.fromEntries(
       travelerIds.map((t) => [
         t,
-        { affinity: affinities[t][c.id], percentile: round3(percentiles[t][i]) },
+        { affinity: affinities[t][c.id], percentile: round3(percentileOf(t, i)) },
       ]),
     );
     const groupFit = round3(powerMean(travelerIds.map((t) => scores[t].percentile)));
@@ -81,6 +97,18 @@ export function scoreCandidates(
       especiallyFor: especiallyFor(scores),
     };
   });
+}
+
+/** The candidates `scorable[i]` is ranked against (always includes itself). */
+function calibrationPeers(scorable: Candidate[], i: number, options: ScoringOptions): Candidate[] {
+  const { calibrationRadiusKm: radius, minCalibrationSamples = 10 } = options;
+  if (radius === undefined) return scorable;
+  const at = scorable[i].alongKm;
+  const near = scorable.filter((c) => Math.abs(c.alongKm - at) <= radius);
+  if (near.length >= minCalibrationSamples) return near;
+  return [...scorable]
+    .sort((a, b) => Math.abs(a.alongKm - at) - Math.abs(b.alongKm - at))
+    .slice(0, minCalibrationSamples);
 }
 
 const round3 = (n: number) => Math.round(n * 1000) / 1000;

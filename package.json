@@ -15,7 +15,8 @@
     "check": "pnpm lint && pnpm typecheck && pnpm test",
     "qloo:verify": "tsx --env-file=.env.local scripts/qloo-verify.ts",
     "qloo:favorites": "tsx --env-file=.env.local scripts/pick-favorites.ts",
-    "qloo:scan-demo": "tsx --env-file=.env.local scripts/scan-demo.ts"
+    "qloo:scan-demo": "tsx --env-file=.env.local scripts/scan-demo.ts",
+    "slice:live": "tsx --env-file=.env.local scripts/slice-live.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

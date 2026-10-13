@@ -2,7 +2,11 @@ import type { QlooClient } from "@/adapters/qloo/client";
 import type { CallMeter } from "@/adapters/qloo/meter";
 import type { Traveler } from "@/config/demoCrew";
 import type { Candidate } from "@/domain/candidate";
-import { scoreCandidates } from "@/domain/scoring";
+import {
+  SCORING_DEFAULTS,
+  scoreCandidates,
+  type ScoringOptions as CalibrationOptions,
+} from "@/domain/scoring";
 
 /** Qloo caps `take` at 50, so a filter.entities batch can't exceed 50 IDs. */
 export const SCORING_BATCH = 50;
@@ -12,6 +16,8 @@ export interface ScoringOptions {
   maxCandidates?: number;
   meter?: CallMeter;
   allowReserve?: boolean;
+  /** Percentile calibration; defaults to local (±200 km). Pass `{}` for trip-wide ranking. */
+  calibration?: CalibrationOptions;
 }
 
 /**
@@ -50,7 +56,7 @@ export async function scoreForTravelers(
   crew: Traveler[],
   options: ScoringOptions = {},
 ): Promise<Candidate[]> {
-  const { maxCandidates = 100, meter, allowReserve } = options;
+  const { maxCandidates = 100, meter, allowReserve, calibration = SCORING_DEFAULTS } = options;
   const top = selectForScoring(candidates, maxCandidates);
   const batches: Candidate[][] = [];
   for (let i = 0; i < top.length; i += SCORING_BATCH) batches.push(top.slice(i, i + SCORING_BATCH));
@@ -77,5 +83,5 @@ export async function scoreForTravelers(
     ),
   );
 
-  return scoreCandidates(top, affinities).sort((a, b) => a.alongKm - b.alongKm);
+  return scoreCandidates(top, affinities, calibration).sort((a, b) => a.alongKm - b.alongKm);
 }

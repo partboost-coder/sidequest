@@ -4,7 +4,7 @@ import type { BucketId } from "@/config/buckets";
 export interface TravelerScore {
   /** Raw Qloo `query.affinity` under this traveler's signals (0–1). */
   affinity: number;
-  /** Percentile of `affinity` within this trip's pool for this traveler (0–1). */
+  /** Percentile of `affinity` among nearby candidates (±200 km by default) for this traveler (0–1). */
   percentile: number;
 }
 

@@ -11,9 +11,14 @@ import type { Feature, MultiPolygon, Polygon, Position } from "geojson";
 
 import type { QlooClient, RequestOptions } from "./client";
 import { QlooError } from "./client";
-import { MOCK_ENTITIES, MOCK_ENTITY_BY_ID, type MockSearchEntity } from "./fixtures/entities";
+import {
+  MOCK_ENTITIES,
+  MOCK_ENTITY_BY_ID,
+  REAL_ENTITY_IMPLIES,
+  type MockSearchEntity,
+} from "./fixtures/entities";
 import { MOCK_PLACES, type MockPlace } from "./fixtures/places";
-import { MOCK_TAG_LIST, MOCK_TAGS, type MockTagKey } from "./fixtures/tags";
+import { MOCK_TAG_LIST, MOCK_TAGS, REAL_TAG_ALIASES, type MockTagKey } from "./fixtures/tags";
 import {
   normalizeInsightsResponse,
   normalizeSearchResponse,
@@ -37,12 +42,12 @@ import type {
  * returns the same scores and different travelers' signals produce different scores.
  */
 
-const TAG_KEY_BY_ID = new Map<string, MockTagKey>(
-  (Object.entries(MOCK_TAGS) as [MockTagKey, (typeof MOCK_TAGS)[MockTagKey]][]).map(([k, t]) => [
-    t.id,
-    k,
-  ]),
-);
+const TAG_KEY_BY_ID = new Map<string, MockTagKey>([
+  ...REAL_TAG_ALIASES,
+  ...(Object.entries(MOCK_TAGS) as [MockTagKey, (typeof MOCK_TAGS)[MockTagKey]][]).map(
+    ([k, t]) => [t.id, k] as const,
+  ),
+]);
 
 const DEFAULT_POINT_RADIUS_M = 25_000;
 
@@ -211,7 +216,10 @@ function interestProfile(params: InsightsParams): Interest {
   // so a precise favorite (a pho restaurant) isn't drowned out by a broad one (a national park).
   for (const id of params.signal?.entities ?? []) {
     const implied =
-      MOCK_ENTITY_BY_ID.get(id)?.implies ?? MOCK_PLACES.find((pl) => pl.id === id)?.tags ?? [];
+      MOCK_ENTITY_BY_ID.get(id)?.implies ??
+      REAL_ENTITY_IMPLIES.get(id) ??
+      MOCK_PLACES.find((pl) => pl.id === id)?.tags ??
+      [];
     implied.forEach((k) => add(k, 1 / implied.length));
   }
   for (const id of params.signal?.tags ?? []) {

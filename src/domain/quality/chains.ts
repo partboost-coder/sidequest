@@ -149,4 +149,11 @@ export const CHAIN_NAMES: readonly string[] = [
   "value village",
   "half price books",
   "guitar center",
+  // Found in the first live plan (task 5.8)
+  "crumbl",
+  "crumbl cookies",
+  "house of blues",
+  "minus5",
+  "minus5 ice bar",
+  "minus5 icebar",
 ];

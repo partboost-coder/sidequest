@@ -104,7 +104,7 @@ _Shared technical considerations across all features in this version._
 - **Batch size (verified in task 1.7):** Qloo caps `take` at 50, so batches are **≤ 50 IDs** (a 50-ID batch was verified: 2.0 KB URL, all 50 returned).
 - **Scoring cap:** only the **top 100 candidates** by group-query affinity (after post-filters) are scored per traveler → **2 batches × 2 travelers = 4 calls**. Lower-ranked candidates are dropped; they would rarely make the itinerary or the Side Quest pool.
 - **Total:** 14 scan calls (`take=15`) + 4 scoring calls ≈ **18 calls per trip** (≤ 20 ✅).
-- **Calibration:** `c_i` = percentile rank of traveler *i*'s affinity within this trip's pool (affinities are compressed at ~0.71–0.92).
+- **Calibration (local, see Deviations):** `c_i` = percentile rank of traveler *i*'s affinity among candidates within **±200 km** along the route (at least the 10 nearest). Affinities are compressed at ~0.71–0.92.
 - **Group fit** `G` = power mean of `c_i` with p = −2. **Your Vibe %** = `round(100·G)`, capped at 99.
 - **"Especially for" [QA-16]:** traveler *i* if `c_i ≥ 0.85` **and** `c_i` is at least **0.10 above every other traveler's score**.
 - Full scoring (delight, overlap, fairness, exact detours) comes in v0.3.0 (302–303).
@@ -184,6 +184,9 @@ _Shared any other technical information that might be relevant to building this 
 | `AgentRun` / `AgentEvent` in 211 | Moved to v0.3.0 (with the Planner agent) | No agent exists yet |
 | Scout: z on stop score S, G ≥ 0.88, 30–60 min window, detour ≤ 20 min, 1–2/day | z on G (S arrives in v0.3.0), G ≥ 0.80, z ≥ 1.5, km window, detour 5–25 min, ≤ 2/day | Naive scoring has no S yet; thresholds start lower and are tuned from the printed z distribution |
 | "Why" from explainability | Per-traveler scores + tag overlap; explainability only breaks ties | S2: explainability is flat with many signals |
+| Calibration: percentile within the trip's pool | **Local calibration**: percentile among candidates within ±200 km (≥ 10 nearest). "Your Vibe %" = how well a place fits the crew *compared with this stretch of road* | Trip-wide ranking let metro areas crowd out rural stretches: 1 Side Quest and a thin day 3. Local: 2 Side Quests (incl. Mystic Hot Springs) and ≥ 3 stops on 3 days. Approved by the product owner 2026-10-13 |
+| Itinerary floor G ≥ 0.60 | G ≥ 0.45, with a 2-stop minimum flagged `belowFloor` | Local percentiles spread wider; 0.60 left rural days empty |
+| Pipeline test asserts exit criteria on mock data | Mock test asserts criteria 1, 2, 4, 5 (Scout's absolute G floor lowered to 0.5) and ≥ 2 stops/day; criterion 3 and default Scout thresholds are proven on the live run (`pnpm slice:live`) | ~45 fictional places can't produce real density, and the mock crew's tastes barely overlap |
 
 ## 5. Open Questions
 _Unresolved technical or product questions affecting this version._

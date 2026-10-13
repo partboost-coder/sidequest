@@ -63,14 +63,14 @@ Decisions: you pick the demo favorites from real search results; travelers are "
 
 | ID  | Task             | Description                             | Dependecies | Status | Assigned To |
 |-----|------------------|-----------------------------------------|-------------|----------|--------|
-| 5.1 | Slice orchestration | `src/services/sliceTrip.ts`: route → corridor → scan → scores → itinerary → Side Quest pool → why lines; returns the full Trip plus the call-meter report. | 3.3–3.5, 4.1, 4.4 | 🔴 Not Started | AGENT |
-| 5.2 | Plan API route | `POST /api/dev/slice/plan` (dev-route gated) returns the full Trip. | 5.1, 1.0 | 🔴 Not Started | AGENT |
+| 5.1 | Slice orchestration | `src/services/sliceTrip.ts`: route → corridor → scan → scores → itinerary → Side Quest pool → why lines; returns the full Trip plus the call-meter report. | 3.3–3.5, 4.1, 4.4 | 🟢 Completed | AGENT |
+| 5.2 | Plan API route | `POST /api/dev/slice/plan` (dev-route gated) returns the full Trip. | 5.1, 1.0 | 🟢 Completed | AGENT |
 | 5.3 | `/dev/slice` page | Map with numbered pins, day list (vibe %, per-traveler %, detour, why), slider, ▶ auto-advance, skip to next stop; RouteMap fit-bounds race fixed. | 5.2 | 🔴 Not Started | AGENT |
 | 5.4 | Side Quest UI (client-side) | The Scout runs in the browser on the returned pool; offer card → accept/skip → jump to arrival → complete (sample photo, 1–5 rating) → XP → journal; state in page + localStorage. | 5.3, 4.2, 4.3 | 🔴 Not Started | AGENT |
 | 5.5 | Sample photos | 3 CC0 or generated images in `/public/samples` with sources in `public/samples/CREDITS.md`. | None | 🔴 Not Started | AGENT |
-| 5.6 | Pipeline end-to-end test | Vitest: `sliceTrip` on `MockQlooClient` with a stubbed route meets exit criteria 2–5 on mock data. | 5.1 | 🔴 Not Started | AGENT |
-| 5.7 | Live run & budget | One live Anaheim → Denver plan (≤ 20 calls), then a cached re-run (0 calls); print planned stops, the Side Quest pool and the z distribution. | 5.1, 1.5 | 🔴 Not Started | AGENT |
-| 5.8 | Quality review | Check exit criteria 1–5 (≤ 20 calls / 0 cached; 0 chains or casinos; ≥ 3 stops on ≥ 3 of 4 days; each traveler especially-for ≥ 1; ≥ 2 Side Quests fire); tune tags, exclusions and thresholds; review the picks together. | 5.7 | 🔴 Not Started | USER, AGENT |
+| 5.6 | Pipeline end-to-end test | Vitest: `sliceTrip` on `MockQlooClient` with a stubbed route meets exit criteria 2–5 on mock data. | 5.1 | 🟢 Completed | AGENT |
+| 5.7 | Live run & budget | One live Anaheim → Denver plan (≤ 20 calls), then a cached re-run (0 calls); print planned stops, the Side Quest pool and the z distribution. | 5.1, 1.5 | 🟢 Completed | AGENT |
+| 5.8 | Quality review | Check exit criteria 1–5 (≤ 20 calls / 0 cached; 0 chains or casinos; ≥ 3 stops on ≥ 3 of 4 days; each traveler especially-for ≥ 1; ≥ 2 Side Quests fire); tune tags, exclusions and thresholds; review the picks together. | 5.7 | 🟡 In Progress | USER, AGENT |
 | 5.9 | Slice checkpoint | You walk the full loop on `/dev/slice` (exit criterion 6). | 5.4, 5.8 | 🔴 Not Started | USER |
 
 ## Phase 6 – Persistence (item 211)

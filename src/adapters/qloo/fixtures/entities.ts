@@ -177,3 +177,18 @@ export const MOCK_ENTITIES: MockSearchEntity[] = [
 ];
 
 export const MOCK_ENTITY_BY_ID = new Map(MOCK_ENTITIES.map((x) => [x.id, x]));
+
+/**
+ * The demo crew's real Qloo favorites (src/config/demoCrew.ts) → mock-only `implies` tags, so
+ * QLOO_MODE=mock plans the demo trip with taste-driven scores instead of noise. IDs only.
+ */
+export const REAL_ENTITY_IMPLIES = new Map<string, MockTagKey[]>([
+  ["F8CD265E-D9F9-447E-838C-9C004DB8F36F", ["vietnamese"]], // Phở 79
+  ["A0AD5611-ADBB-4F6A-81FE-E9B9CA57063D", ["mexican", "tacos"]], // Guelaguetza
+  ["D2DF5D6E-1233-4B1C-BB40-45FDD1382819", ["cars", "carMuseum", "roadside"]], // Ford v Ferrari
+  ["52466D6F-50B2-427D-9AB2-1A3AC7D52F50", ["hiking", "desert", "nationalPark", "viewpoint"]], // Joshua Tree NP
+  ["AFBC71A7-9439-4AB0-AB68-D14B11AAF836", ["indieMusic", "liveMusic", "recordStore"]], // Phoebe Bridgers
+  ["22B1BC87-CDFE-4340-86F8-8E0E6E1E6A7D", ["coffee", "bakery"]], // Blue Bottle Coffee
+  ["D0E89E89-8C40-40FF-8F0C-40A1CE40D763", ["artGallery", "museum", "mural"]], // The Broad
+  ["DB4CE34E-3A63-4947-946F-9D52502C5762", ["outdoors", "vintage", "hotSprings"]], // Patagonia
+]);
