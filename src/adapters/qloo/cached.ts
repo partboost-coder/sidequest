@@ -40,7 +40,7 @@ export class MemoryCacheStore implements CacheStore {
     return hit.value;
   }
 
-  async set(key: string, value: unknown, ttlMs: number) {
+  async set(key: string, value: unknown, ttlMs: number, _meta?: CacheMeta) {
     if (this.entries.size >= this.maxEntries) {
       const oldest = this.entries.keys().next().value;
       if (oldest !== undefined) this.entries.delete(oldest);

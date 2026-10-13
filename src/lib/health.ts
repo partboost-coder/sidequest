@@ -8,7 +8,13 @@ export interface HealthReport {
   version: string;
   checkedAt: string;
   config: { status: CheckStatus; problems?: string[] };
-  qloo?: { mode: ServerEnv["QLOO_MODE"]; keyConfigured: boolean };
+  qloo?: {
+    mode: ServerEnv["QLOO_MODE"];
+    keyConfigured: boolean;
+    cache: ServerEnv["QLOO_CACHE"];
+    monthRemaining?: number;
+    remainingObservedAt?: string;
+  };
   session?: { mode: ServerEnv["SESSION_MODE"] };
   mapbox?: { status: CheckStatus; latencyMs?: number; error?: string };
   llm?: { configured: boolean };
@@ -27,6 +33,7 @@ export async function buildHealthReport(
   probeMapbox: Probe,
   version: string,
   now = new Date(),
+  qlooQuota?: () => Promise<{ remaining: number; observedAt: string } | undefined>,
 ): Promise<HealthReport> {
   const base = { version, checkedAt: now.toISOString() };
   let env: ServerEnv;
@@ -43,7 +50,7 @@ export async function buildHealthReport(
     return { ...base, status: "down", config: { status: "down", problems } };
   }
 
-  const mapbox = await probeMapbox();
+  const [mapbox, quota] = await Promise.all([probeMapbox(), qlooQuota?.().catch(() => undefined)]);
   const status: CheckStatus =
     mapbox.status === "ok" ? "ok" : mapbox.status === "down" ? "down" : "degraded";
 
@@ -51,7 +58,13 @@ export async function buildHealthReport(
     ...base,
     status,
     config: { status: "ok" },
-    qloo: { mode: env.QLOO_MODE, keyConfigured: Boolean(env.QLOO_API_KEY) },
+    qloo: {
+      mode: env.QLOO_MODE,
+      keyConfigured: Boolean(env.QLOO_API_KEY),
+      cache: env.QLOO_CACHE,
+      monthRemaining: quota?.remaining,
+      remainingObservedAt: quota?.observedAt,
+    },
     session: { mode: env.SESSION_MODE },
     mapbox,
     llm: { configured: Boolean(env.ANTHROPIC_API_KEY) },

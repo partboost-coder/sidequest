@@ -1,6 +1,7 @@
 import { connection } from "next/server";
 
 import { MapboxClient } from "@/adapters/mapbox/client";
+import { getQlooQuota } from "@/adapters/qloo";
 import { buildHealthReport } from "@/lib/health";
 
 import pkg from "../../../../package.json";
@@ -22,6 +23,8 @@ export async function GET() {
       }
     },
     pkg.version,
+    new Date(),
+    getQlooQuota,
   );
   return Response.json(report, {
     status: report.status === "down" ? 503 : 200,

@@ -372,12 +372,6 @@ describe("RealQlooClient", () => {
     expect(req.url).not.toContain("test-key");
   });
 
-  it("is not implemented yet", async () => {
-    await expect(real.insights({ filterType: "urn:entity:place" })).rejects.toMatchObject({
-      status: 501,
-    });
-  });
-
   it("requires an API key", () => {
     expect(() => new RealQlooClient({ apiKey: "", baseUrl: "https://x" })).toThrow(QlooError);
   });
@@ -385,18 +379,23 @@ describe("RealQlooClient", () => {
 
 describe("createQlooClient", () => {
   it("wraps the mock in the cache by default", () => {
-    const client = createQlooClient({ mode: "mock", baseUrl: "https://hackathon.api.qloo.com" });
+    const { client, quota } = createQlooClient({
+      mode: "mock",
+      baseUrl: "https://hackathon.api.qloo.com",
+    });
     expect(client).toBeInstanceOf(CachedQlooClient);
     expect(client.inner).toBeInstanceOf(MockQlooClient);
+    expect(quota).toBeUndefined();
   });
 
   it("uses the real client outside mock mode", () => {
-    const client = createQlooClient({
+    const { client, quota } = createQlooClient({
       mode: "real",
       apiKey: "k",
       baseUrl: "https://hackathon.api.qloo.com",
     });
     expect(client.inner).toBeInstanceOf(RealQlooClient);
+    expect(quota).toBeDefined();
   });
 });
 

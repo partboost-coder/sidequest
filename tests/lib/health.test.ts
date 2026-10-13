@@ -24,7 +24,7 @@ describe("buildHealthReport", () => {
       version: "0.1.0",
       checkedAt: "2026-10-12T00:00:00.000Z",
       config: { status: "ok" },
-      qloo: { mode: "mock", keyConfigured: true },
+      qloo: { mode: "mock", keyConfigured: true, cache: "file" },
       session: { mode: "dev" },
       mapbox: { status: "ok", latencyMs: 12 },
       llm: { configured: false },
@@ -47,5 +47,24 @@ describe("buildHealthReport", () => {
     const report = await buildHealthReport({ MAPBOX_TOKEN: "pk.x" }, down, "0.1.0", now);
     expect(report.status).toBe("down");
     expect(report.mapbox?.error).toContain("401");
+  });
+});
+
+describe("buildHealthReport quota", () => {
+  it("includes the last known Qloo quota", async () => {
+    const report = await buildHealthReport(
+      { MAPBOX_TOKEN: "pk.x" },
+      ok,
+      "0.1.0",
+      now,
+      async () => ({
+        remaining: 9970,
+        observedAt: "2026-10-13T00:00:00.000Z",
+      }),
+    );
+    expect(report.qloo).toMatchObject({
+      monthRemaining: 9970,
+      remainingObservedAt: "2026-10-13T00:00:00.000Z",
+    });
   });
 });
