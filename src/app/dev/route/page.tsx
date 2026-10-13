@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import RouteSmoke from "./RouteSmoke";
+import SessionBadge from "./SessionBadge";
 
 export const metadata: Metadata = {
   title: "Route smoke test · Sidequest",
@@ -18,9 +19,12 @@ export default function RouteSmokePage() {
             Server-side Mapbox Directions → simplified geometry → Mapbox GL.
           </p>
         </div>
-        <Link href="/" className="text-sm underline underline-offset-4">
-          Home
-        </Link>
+        <div className="flex items-center gap-3">
+          <SessionBadge />
+          <Link href="/" className="text-sm underline underline-offset-4">
+            Home
+          </Link>
+        </div>
       </header>
       <RouteSmoke />
     </main>

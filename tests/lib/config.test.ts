@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { EnvError, parseClientEnv, parseServerEnv } from "@/lib/config/env.schema";
+import {
+  DEFAULT_DEV_USER_ID,
+  EnvError,
+  parseClientEnv,
+  parseServerEnv,
+} from "@/lib/config/env.schema";
 import { FEATURE_FLAGS, parseFlags } from "@/lib/flags.schema";
 
 const base = {
@@ -30,8 +35,11 @@ describe("parseServerEnv", () => {
     expect(() => parseServerEnv({ ...base, MAPBOX_TOKEN: undefined })).toThrow(/MAPBOX_TOKEN/);
   });
 
-  it("requires DEV_USER_ID in dev session mode and Supabase keys in supabase mode", () => {
-    expect(() => parseServerEnv({ ...base, DEV_USER_ID: "" })).toThrow(/DEV_USER_ID/);
+  it("defaults to dev sessions with a fixed guest ID, and requires Supabase keys in supabase mode", () => {
+    const env = parseServerEnv({ MAPBOX_TOKEN: "sk.test" });
+    expect(env.SESSION_MODE).toBe("dev");
+    expect(env.DEV_USER_ID).toBe(DEFAULT_DEV_USER_ID);
+    expect(() => parseServerEnv({ ...base, DEV_USER_ID: "not-a-uuid" })).toThrow(/DEV_USER_ID/);
     expect(() => parseServerEnv({ ...base, SESSION_MODE: "supabase" })).toThrow(
       /NEXT_PUBLIC_SUPABASE_URL[\s\S]*NEXT_PUBLIC_SUPABASE_ANON_KEY/,
     );

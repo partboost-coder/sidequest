@@ -8,6 +8,9 @@ import { z } from "zod";
 export const QLOO_MODES = ["mock", "real", "record"] as const;
 export const SESSION_MODES = ["supabase", "dev"] as const;
 
+/** Fixed guest identity used when SESSION_MODE=dev. */
+export const DEFAULT_DEV_USER_ID = "00000000-0000-4000-8000-000000000001";
+
 const optionalString = z.string().trim().optional();
 
 export const serverEnvSchema = z
@@ -20,8 +23,9 @@ export const serverEnvSchema = z
 
     MAPBOX_TOKEN: optionalString,
 
-    SESSION_MODE: z.enum(SESSION_MODES).default("supabase"),
-    DEV_USER_ID: z.uuid().optional(),
+    // "dev" until Supabase anonymous sessions land (v0.2.0, item 212).
+    SESSION_MODE: z.enum(SESSION_MODES).default("dev"),
+    DEV_USER_ID: z.uuid().default(DEFAULT_DEV_USER_ID),
     NEXT_PUBLIC_SUPABASE_URL: z.url().optional(),
     NEXT_PUBLIC_SUPABASE_ANON_KEY: optionalString,
     SUPABASE_SERVICE_ROLE_KEY: optionalString,
@@ -41,13 +45,6 @@ export const serverEnvSchema = z
         code: "custom",
         path: ["MAPBOX_TOKEN"],
         message: "MAPBOX_TOKEN (secret token) is required for routing and geocoding",
-      });
-    }
-    if (env.SESSION_MODE === "dev" && !env.DEV_USER_ID) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["DEV_USER_ID"],
-        message: "DEV_USER_ID (a UUID) is required when SESSION_MODE=dev",
       });
     }
     if (env.SESSION_MODE === "supabase") {

@@ -75,10 +75,10 @@ Milestone M0 (Oct 6–7). Backlog items 101–108. Decisions from design review:
 
 | ID  | Task             | Description                             | Dependecies | Status | Assigned To |
 |-----|------------------|-----------------------------------------|-------------|----------|--------|
-| 6.1 | `getCurrentUser()` seam | Single API returning `{ id, isAnonymous }`; mode chosen by `SESSION_MODE`. | 3.1 | 🔴 Not Started | AGENT |
-| 6.2 | Dev session | `SESSION_MODE=dev` returns `DEV_USER_ID`. | 6.1 | 🔴 Not Started | AGENT |
-| 6.3 | Supabase anonymous session | `@supabase/ssr` client/server helpers, middleware cookie refresh, `signInAnonymously()` on first visit. If not working within the time box, set `SESSION_MODE=dev` and move on. | 6.1, 1.4 | 🔴 Not Started | AGENT |
-| 6.4 | Session indicator | Show the guest ID (shortened) on `/dev/route` to verify sessions persist across reloads. | 6.2 or 6.3 | 🔴 Not Started | AGENT |
+| 6.1 | `getCurrentUser()` seam | Single API returning `{ id, isAnonymous }`; mode chosen by `SESSION_MODE`. | 3.1 | 🟢 Completed | AGENT |
+| 6.2 | Dev session | `SESSION_MODE=dev` returns `DEV_USER_ID`. | 6.1 | 🟢 Completed | AGENT |
+| 6.3 | Supabase anonymous session | **Moved to v0.2.0 item 212** (tested against local Supabase with persistence). Original scope: `@supabase/ssr` client/server helpers, middleware cookie refresh, `signInAnonymously()` on first visit. If not working within the time box, set `SESSION_MODE=dev` and move on. | 6.1, 1.4 | 🔴 Not Started | AGENT |
+| 6.4 | Session indicator | Show the guest ID (shortened) on `/dev/route` to verify sessions persist across reloads. | 6.2 or 6.3 | 🟢 Completed | AGENT |
 
 ## Phase 7 – Health, Env Rollout & Verification
 
