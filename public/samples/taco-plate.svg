@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="Illustrated plate of tacos on a picnic table">
+  <rect width="640" height="480" fill="#7c2d12"/>
+  <g stroke="#9a3412" stroke-width="6"><path d="M0 120 H640 M0 240 H640 M0 360 H640"/></g>
+  <circle cx="320" cy="250" r="190" fill="#f5f5f4"/>
+  <circle cx="320" cy="250" r="160" fill="#fafaf9" stroke="#e7e5e4" stroke-width="4"/>
+  <g transform="translate(320 250)">
+    <g transform="rotate(-25) translate(-80 0)">
+      <path d="M-70 20 A70 70 0 0 1 70 20Z" fill="#fbbf24"/><path d="M-58 14 q58 -60 116 0" fill="#16a34a"/><circle cx="-20" cy="2" r="9" fill="#dc2626"/><circle cx="18" cy="-4" r="8" fill="#f8fafc"/>
+    </g>
+    <g transform="rotate(20) translate(80 10)">
+      <path d="M-70 20 A70 70 0 0 1 70 20Z" fill="#f59e0b"/><path d="M-58 14 q58 -60 116 0" fill="#65a30d"/><circle cx="-14" cy="0" r="9" fill="#b91c1c"/><circle cx="22" cy="-2" r="7" fill="#f8fafc"/>
+    </g>
+    <circle cx="0" cy="95" r="26" fill="#84cc16"/><circle cx="0" cy="95" r="18" fill="#bef264"/>
+  </g>
+</svg>

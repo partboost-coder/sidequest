@@ -10,8 +10,6 @@ import { DEMO_CREW } from "@/config/demoCrew";
 import { findSideQuest, robustZ, SCOUT_DEFAULTS } from "@/domain/scout";
 import { sliceTrip, type SliceTrip } from "@/services/sliceTrip";
 
-const pct = (n: number) => Math.round(100 * n);
-
 function slide(trip: SliceTrip) {
   const offers: ReturnType<typeof findSideQuest>[] = [];
   const offered = new Set<string>();

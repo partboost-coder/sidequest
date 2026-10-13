@@ -65,6 +65,8 @@ export interface SliceTrip {
   };
 }
 
+const PLACE_TYPE_TAG = /^urn:tag:(category|genre):place:/;
+
 /**
  * The vertical-slice pipeline: route → corridor → scan → per-traveler scores → naive itinerary →
  * Side Quest pool → template "why" lines. ~18 Qloo calls cold; 0 on a cached re-plan.
@@ -82,7 +84,14 @@ export async function sliceTrip(input: SliceTripInput, deps: SliceTripDeps): Pro
   const routeKm = routeLengthKm(route.geometry);
   const itinerary = naiveItinerary(scored, routeKm, { days: input.days });
 
-  const explain = <T extends Candidate>(c: T) => ({ ...c, why: templateWhy(c, crew) });
+  // The browser only needs place-type tags (Side Quest titles) and the precomputed "why";
+  // Qloo returns 30–60 descriptive tags per place, which made the payload ~1 MB.
+  const explain = <T extends Candidate>(c: T) => ({
+    ...c,
+    tags: c.tags.filter((t) => PLACE_TYPE_TAG.test(t.id)),
+    contributions: [],
+    why: templateWhy(c, crew),
+  });
   return {
     crew: crew.map(({ id, name, color, emoji }) => ({ id, name, color, emoji })),
     route: {

@@ -13,13 +13,40 @@ export interface RouteMapProps {
   geometry?: LineString;
   origin?: { lon: number; lat: number; label?: string };
   destination?: { lon: number; lat: number; label?: string };
+  /** Numbered stops and Side Quest pins. */
+  markers?: MapMarker[];
+  /** The simulated car. */
+  car?: { lon: number; lat: number };
   className?: string;
 }
+
+export interface MapMarker {
+  id: string;
+  lon: number;
+  lat: number;
+  /** Short text inside the pin ("3", "✨"). */
+  label: string;
+  title?: string;
+  tone: "stop" | "done" | "quest";
+}
+
+const MARKER_TONE: Record<MapMarker["tone"], string> = {
+  stop: "bg-orange-600 text-white",
+  done: "bg-stone-400 text-white",
+  quest: "bg-violet-600 text-white ring-4 ring-violet-300 animate-pulse",
+};
 
 const STYLE = "mapbox://styles/mapbox/standard";
 const US_VIEW = { longitude: -98.5, latitude: 39.5, zoom: 3.2 };
 
-export default function RouteMap({ geometry, origin, destination, className }: RouteMapProps) {
+export default function RouteMap({
+  geometry,
+  origin,
+  destination,
+  markers,
+  car,
+  className,
+}: RouteMapProps) {
   const mapRef = useRef<MapRef>(null);
   const [loaded, setLoaded] = useState(false);
   const token = getClientEnv().NEXT_PUBLIC_MAPBOX_TOKEN;
@@ -88,6 +115,23 @@ export default function RouteMap({ geometry, origin, destination, className }: R
             label={destination.label ?? "End"}
             tone="end"
           />
+        )}
+        {markers?.map((m) => (
+          <Marker key={m.id} longitude={m.lon} latitude={m.lat} anchor="center">
+            <span
+              title={m.title}
+              className={`flex size-6 items-center justify-center rounded-full border-2 border-white text-[11px] font-semibold shadow ${MARKER_TONE[m.tone]}`}
+            >
+              {m.label}
+            </span>
+          </Marker>
+        ))}
+        {car && (
+          <Marker longitude={car.lon} latitude={car.lat} anchor="center" style={{ zIndex: 10 }}>
+            <span className="flex size-8 items-center justify-center rounded-full border-2 border-white bg-sky-600 text-base shadow-lg">
+              🚗
+            </span>
+          </Marker>
         )}
       </Map>
     </div>

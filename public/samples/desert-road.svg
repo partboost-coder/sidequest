@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="Illustrated desert highway at sunset">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f97316"/><stop offset="0.55" stop-color="#fdba74"/><stop offset="1" stop-color="#fde68a"/></linearGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c2410c"/><stop offset="1" stop-color="#7c2d12"/></linearGradient>
+  </defs>
+  <rect width="640" height="480" fill="url(#sky)"/>
+  <circle cx="470" cy="250" r="70" fill="#fef3c7" opacity="0.9"/>
+  <path d="M0 300 L90 220 L150 250 L240 170 L330 260 L400 230 L470 280 L560 210 L640 260 L640 480 L0 480Z" fill="#9a3412" opacity="0.75"/>
+  <rect y="300" width="640" height="180" fill="url(#ground)"/>
+  <path d="M280 300 L360 300 L560 480 L80 480Z" fill="#292524"/>
+  <path d="M318 300 L322 300 L326 340 L314 340Z M310 360 L330 360 L336 410 L304 410Z M298 430 L342 430 L350 480 L290 480Z" fill="#fde047"/>
+  <path d="M120 300 v-70 m0 20 h-18 v-25 m18 35 h16 v-30" stroke="#14532d" stroke-width="10" stroke-linecap="round" fill="none"/>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" role="img" aria-label="Illustrated hot springs pools on a hillside">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#93c5fd"/><stop offset="1" stop-color="#e0f2fe"/></linearGradient>
+    <linearGradient id="pool" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5eead4"/><stop offset="1" stop-color="#0e7490"/></linearGradient>
+  </defs>
+  <rect width="640" height="480" fill="url(#sky)"/>
+  <path d="M0 230 Q160 150 320 210 T640 190 L640 480 L0 480Z" fill="#a16207"/>
+  <path d="M0 290 Q200 240 360 280 T640 270 L640 480 L0 480Z" fill="#ca8a04"/>
+  <ellipse cx="200" cy="340" rx="120" ry="38" fill="#fef3c7"/>
+  <ellipse cx="200" cy="336" rx="104" ry="30" fill="url(#pool)"/>
+  <ellipse cx="440" cy="400" rx="140" ry="44" fill="#fef3c7"/>
+  <ellipse cx="440" cy="396" rx="122" ry="35" fill="url(#pool)"/>
+  <g fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity="0.8">
+    <path d="M170 300 q-14 -24 0 -46 t0 -46"/><path d="M220 300 q14 -24 0 -46 t0 -46"/>
+    <path d="M420 360 q-14 -24 0 -46 t0 -46"/><path d="M470 360 q14 -24 0 -46 t0 -46"/>
+  </g>
+</svg>
