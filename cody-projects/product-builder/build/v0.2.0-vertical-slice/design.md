@@ -82,7 +82,8 @@ _Shared technical considerations across all features in this version._
 - **Dev cache:** `FileCacheStore` in gitignored `.qloo-cache/`. Default `QLOO_CACHE=file` in development, `memory` elsewhere until 211 adds `postgres`. `QLOO_MODE=record` = `real` + file cache. **It no longer writes committed fixtures**, because raw Qloo data stays out of the public repo (see Deviations).
 
 ### 201: Demo crew
-- `src/config/demoCrew.ts`: "Matt" and "Alex", each with a color, **3–4 favorites `{ qlooId, name, type, tags }`** chosen by you from real `/search` results, and their taste tags. Only IDs, names and tag IDs are committed.
+- `src/config/demoCrew.ts`: "Matt" and "Alex", each with a color, **4 favorites `{ qlooId, name, type }`** chosen by you from real `/search` results, and **`tasteTags`**: validated *place* tags describing their interests. Only IDs, names and tag IDs are committed. *(Favorites' own tags turned out to be cross-domain descriptors, e.g. Wikipedia categories, that never overlap with place tags, so "why" overlap uses `tasteTags`. These play the role onboarding's vibe cards will later.)*
+- **Chosen favorites:** Matt: Phở 79 (Westminster), Guelaguetza Restaurant, *Ford v Ferrari*, Joshua Tree National Park. Alex: Phoebe Bridgers, Blue Bottle Coffee, The Broad, Patagonia.
 - `scripts/pick-favorites.ts` prints candidates with type, city and ID. It costs about 10–15 calls and needs the quota guard **[QA-15]**.
 
 ### 202: Corridor geometry (`src/domain/geo/corridor.ts`)
@@ -126,7 +127,7 @@ _Shared technical considerations across all features in this version._
 - Pure; no Qloo calls at simulation time.
 
 ### 208: Side Quest loop + XP + journal
-- **Template "why" [QA-12]:** built from per-traveler `c_i` ("94% Your Vibe · Matt 96 · Alex 91"), **tag overlap** between the place's tags and each traveler's favorites' tags ("Alex: indie, art"), and a description or specialty-dish snippet. Explainability credit is used only to break ties (S2 found it too flat with many signals).
+- **Template "why" [QA-12]:** built from per-traveler `c_i` ("94% Your Vibe · Matt 96 · Alex 91"), **tag overlap** between the place's tags and each traveler's `tasteTags` ("Alex: indie, art"), and a description or specialty-dish snippet. Explainability credit is used only to break ties (S2 found it too flat with many signals).
 - **XP (`src/domain/xp`) [QA-14]:** Side Quest = 100 + `clamp(round(50·(G−0.8)/0.2), 0, 50)` + `min(2·detourMin, 50)`. Planned check-in = 50 + the same clamped match bonus.
 - **Before 211:** Scout, quest state, XP and journal run in the browser (page state + localStorage). **From 211:** quest actions go through `POST /api/dev/slice/quest/:id` and are persisted.
 - **Sample photos:** 3 images in `/public/samples` that are **CC0 or generated**, with sources recorded in `public/samples/CREDITS.md` **[QA-16]**.

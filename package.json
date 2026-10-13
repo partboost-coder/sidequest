@@ -13,7 +13,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check": "pnpm lint && pnpm typecheck && pnpm test",
-    "qloo:verify": "tsx --env-file=.env.local scripts/qloo-verify.ts"
+    "qloo:verify": "tsx --env-file=.env.local scripts/qloo-verify.ts",
+    "qloo:favorites": "tsx --env-file=.env.local scripts/pick-favorites.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

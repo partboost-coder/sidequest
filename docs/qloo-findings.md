@@ -55,6 +55,14 @@ The HTTP status of a rate-limited response wasn't recorded (the body was `{"erro
 - Rate-limit HTTP status: not observed yet (no natural rate limit occurred). The client handles 429 or the `error_msg` body.
 - File cache re-run: 0 live calls.
 
+### Tag validation (2026-10-13, task 2.4, 34 calls)
+
+- Place tags come in two parallel forms: `urn:tag:category:place:<x>` and `urn:tag:genre:place[:restaurant]:<x>`. Buckets list both.
+- Validated IDs live in `src/config/buckets.ts` (food, experiences, exclusions).
+- No car-museum or roadside-attraction tag exists; `category:place:car_racing_track`, `scenic_spot` and `tourist_attraction` cover those interests.
+- Searching with `types` fixes the disambiguation from S5: "Pho 79" (type place) → Phở 79, Westminster CA.
+- Favorites' own tags are cross-domain (e.g. Wikipedia categories for brands, plot keywords for films) and rarely overlap with place tags.
+
 ### Recommendation quality findings
 
 - **An unfiltered group query is generic:** the top results for Barstow → Las Vegas were casinos, a sky lounge and Luxor. Must query **per bucket** with curated `filter.tags`.
