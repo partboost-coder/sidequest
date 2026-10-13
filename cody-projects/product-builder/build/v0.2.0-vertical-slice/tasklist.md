@@ -1,7 +1,11 @@
 # Version Tasklist – v0.2.0-vertical-slice
 This document outlines all the tasks to work on to delivery this particular version, grouped by phases.
 
-Milestone M1, target **Oct 15** (slice by end of Oct 14). Backlog items 201–212 (209 done). Decisions from design review: you pick the demo favorites from real search results; travelers are "Matt" and "Alex"; hosted Supabase is deferred to the end of v0.3.0 (production stays on mock data); Prisma is pinned to the latest stable 7.x. **Quota budget for this version: about 300 Qloo calls.**
+Milestone M1. **Revision 2 (Oct 12):** updated after the senior QA review (QA-1 to QA-16; see `design.md`).
+
+Decisions: you pick the demo favorites from real search results; travelers are "Matt" and "Alex"; hosted Supabase waits until the end of v0.3.0 (production stays mock-only, dev routes return 404 there); Prisma pinned to the latest stable 7.x. **Quota budget: ~300 Qloo calls.**
+
+**Timebox & slip rule:** Phases 1–5 by end of **Oct 14**; Phases 6–8 on **Oct 15**. If the slice checkpoint (5.9) slips past Oct 14, Phase 7 (212) moves to v0.3.0 day one. If Phase 6 (211) isn't done by end of Oct 15, it moves too. **The slice never waits on persistence.**
 
 | Status |      |
 |--------|------|
@@ -10,87 +14,91 @@ Milestone M1, target **Oct 15** (slice by end of Oct 14). Backlog items 201–21
 | 🟢 | Completed |
 
 
-## Phase 1 – Real Qloo Client & Quota Guard (item 210)
+## Phase 1 – Foundations Fixes & Real Qloo Client (item 210)
 
 | ID  | Task             | Description                             | Dependecies | Status | Assigned To |
 |-----|------------------|-----------------------------------------|-------------|----------|--------|
-| 1.1 | Quota increase request | Post the prepared message in Qloo Discord #api-help asking for a higher monthly quota through judging. | None | 🔴 Not Started | USER |
-| 1.2 | Normalizer updates | Singular `type`/`subtype` (search uses `types[]`), tag `id` vs `tag_id`, `query.distance`, and the useful `properties` (description, short_description, specialty_dishes, keywords, good_for, price_level, business_rating, is_closed, hours, images); update the mock to emit the same shape. | None | 🔴 Not Started | AGENT |
-| 1.3 | Throttle | Process-wide token bucket at 4 req/s, concurrency ≤ 4. | None | 🔴 Not Started | AGENT |
-| 1.4 | RealQlooClient network calls | `fetch` with `X-Api-Key`, 10 s timeout; retry 2× on 429/5xx/network errors with backoff + jitter; no retry on other 4xx. | 1.2, 1.3 | 🔴 Not Started | AGENT |
-| 1.5 | Quota tracking & guard | Read `x-month-ratelimit-remaining`; refuse live calls below `QLOO_QUOTA_RESERVE` (default 1,000) unless `allowReserve`; expose `qloo.monthRemaining` in `/api/health`. | 1.4 | 🔴 Not Started | AGENT |
-| 1.6 | File cache store | `FileCacheStore` in gitignored `.qloo-cache/`; `QLOO_CACHE=file|memory|postgres`; `record` mode = real + file cache; call counter (endpoint, ms, cached, remaining). | 1.4 | 🔴 Not Started | AGENT |
-| 1.7 | Qloo client tests | Throttle rate, retry policy, quota guard, file cache round-trip, normalizer with synthetic fixtures shaped like the observed responses. | 1.2–1.6 | 🔴 Not Started | AGENT |
+| 1.0 | Foundations fixes | Env additions (`QLOO_CACHE`, `QLOO_QUOTA_RESERVE`, `QLOO_UNKNOWN_QUOTA_BUDGET`, `DEV_ROUTES`, `DATABASE_URL`, `DIRECT_URL`) with a Vercel rule rejecting `QLOO_CACHE=file`; `.env.example`; `.gitignore` adds `.qloo-cache/`; `RequestOptions { allowReserve, meter, signal }` on `QlooClient`; `QlooError.code`; `CacheStore.set` metadata; dev-route gate (404 unless `DEV_ROUTES`), applied to `/dev/*` now; tests. | None | 🔴 Not Started | AGENT |
+| 1.1 | Quota increase request | Post the prepared message in Qloo Discord #api-help. | None | 🔴 Not Started | USER |
+| 1.2 | Normalizer additions | Capture `query.distance` and the useful `properties` (description, short_description, specialty_dishes, keywords, good_for, price_level, business_rating, is_closed, hours, images); the mock emits the same shape. (`type`/`types` and `tag_id`/`id` already work.) | 1.0 | 🔴 Not Started | AGENT |
+| 1.3 | Throttle | Process-wide token bucket at 4 req/s, concurrency ≤ 4. | 1.0 | 🔴 Not Started | AGENT |
+| 1.4 | RealQlooClient network calls | `fetch` + `X-Api-Key`, 10 s timeout; `rate_limited` = HTTP 429 or body `"error_msg":"Rate limit exceeded"` → retry after 1 s, ≤ 2×; network/timeout retry 2× with backoff + jitter; **5xx retried once**; other 4xx never retried. | 1.2, 1.3 | 🔴 Not Started | AGENT |
+| 1.5 | Quota guard | Track `x-month-ratelimit-remaining` in memory and persist it (`.qloo-cache/quota.json`); refuse below `QLOO_QUOTA_RESERVE` unless `allowReserve`; **unknown remaining fails closed** after `QLOO_UNKNOWN_QUOTA_BUDGET` calls; `/api/health` reports `qloo.monthRemaining` and its age. | 1.4 | 🔴 Not Started | AGENT |
+| 1.6 | File cache & call meter | `FileCacheStore` (gitignored, falls back to memory if a write fails); `QLOO_CACHE` selection; `record` = real + file cache; per-request `CallMeter` (endpoint, ms, cached, remaining). | 1.4 | 🔴 Not Started | AGENT |
+| 1.7 | Live verification (~5 calls) | Confirm the quota headers on a live call; record the status code of a rate-limit response if one occurs naturally (don't burn calls to provoke it); **verify a 100-ID `filter.entities` batch with `take=100`** (URL length, all returned); fall back to 50 if it fails; update `docs/qloo-findings.md`. | 1.5, 1.6 | 🔴 Not Started | AGENT |
+| 1.8 | Qloo client tests | Throttle rate; rate-limit body detection; retry policy (5xx once); quota guard incl. persistence and unknown-remaining fail-closed; file cache round-trip + read-only fallback; meter isolation; normalizer with synthetic fixtures. | 1.2–1.6 | 🔴 Not Started | AGENT |
 
 ## Phase 2 – Demo Crew & Bucket Config (items 201, 203 config)
 
 | ID  | Task             | Description                             | Dependecies | Status | Assigned To |
 |-----|------------------|-----------------------------------------|-------------|----------|--------|
-| 2.1 | Favorites picker script | `scripts/pick-favorites.ts`: runs `/search` for proposed favorites and prints the top candidates with type + city + ID. | 1.6 | 🔴 Not Started | AGENT |
+| 2.1 | Favorites picker script | `scripts/pick-favorites.ts`: `/search` for the proposed favorites; prints top candidates with type, city and ID (~10–15 calls). | 1.5, 1.6 | 🔴 Not Started | AGENT |
 | 2.2 | Choose favorites | Pick 3–4 favorites each for Matt and Alex from the printed candidates. | 2.1 | 🔴 Not Started | USER |
-| 2.3 | Demo crew config | `src/config/demoCrew.ts`: travelers (name, color), favorites `{qlooId, name, type}`, taste tags. IDs and names only. | 2.2 | 🔴 Not Started | AGENT |
-| 2.4 | Bucket tags & exclusions | Validate curated tag IDs via `/v2/tags` (food & drink; experiences; exclusions such as casino, hotel, gas station, fast food); store in `src/config/buckets.ts`. | 1.6 | 🔴 Not Started | AGENT |
-| 2.5 | Chain filter | `src/domain/quality/chains.ts`: ~100 national chain names, normalized matching; closed-place filter; unit tests. | None | 🔴 Not Started | AGENT |
+| 2.3 | Demo crew config | `src/config/demoCrew.ts`: name, color, favorites `{qlooId, name, type, tags}`, taste tags. IDs, names and tag IDs only. | 2.2 | 🔴 Not Started | AGENT |
+| 2.4 | Bucket tags & exclusions | Validate curated tag IDs via `/v2/tags` (food & drink; experiences; exclusions: casino, hotel, gas station, fast food); store in `src/config/buckets.ts` (~20 calls). | 1.5, 1.6 | 🔴 Not Started | AGENT |
+| 2.5 | Chain & closed filters | `src/domain/quality`: ~100 national chain names with normalized matching; `is_closed`; excluded-subtype check; unit tests. | None | 🔴 Not Started | AGENT |
 
 ## Phase 3 – Corridor, Scan & Scoring (items 202, 203, 204)
 
 | ID  | Task             | Description                             | Dependecies | Status | Assigned To |
 |-----|------------------|-----------------------------------------|-------------|----------|--------|
 | 3.1 | Corridor segmentation | `src/domain/geo/corridor.ts`: ~2.5 h drive-time segments, 15 km buffer, ≤ 40 vertices, lon-first WKT. | None | 🔴 Not Started | AGENT |
-| 3.2 | Route progress helpers | `alongKm`, `pointAt`, `progressFraction`, `segmentFor`. | 3.1 | 🔴 Not Started | AGENT |
-| 3.3 | Corridor scan service | `src/services/corridorScan.ts`: segment × bucket Insights calls with union signals, bucket tags, exclusions, diversify, explainability; post-filters; de-duplication by entity ID. | 1.4, 2.3, 2.4, 2.5, 3.1 | 🔴 Not Started | AGENT |
-| 3.4 | Per-traveler scoring calls | `filter.entities` per traveler, batched ≤ 100 IDs. | 3.3 | 🔴 Not Started | AGENT |
-| 3.5 | Naive group scoring | `src/domain/scoring`: percentile calibration, power-mean (p = −2) group fit, Your Vibe %, "especially for". | 3.4 | 🔴 Not Started | AGENT |
-| 3.6 | Geo & scoring tests | Segment count and coverage, vertex budget, WKT order, calibration, power mean, vibe % cap. | 3.1, 3.2, 3.5 | 🔴 Not Started | AGENT |
+| 3.2 | Route progress helpers | `alongKm`, `pointAt`, `progressFraction`, `segmentFor`; **move `estimateDetourMin` into `domain/geo`** (adapter re-exports it). | 3.1 | 🔴 Not Started | AGENT |
+| 3.3 | Corridor scan service | `src/services/corridorScan.ts`: segment × bucket Insights calls (union signals, bucket tags, exclusions, diversify, `take=20`, explainability); post-filters **before** scoring; de-duplicate; uses the request's `CallMeter`. | 1.5, 1.7, 2.3, 2.4, 2.5, 3.1 | 🔴 Not Started | AGENT |
+| 3.4 | Per-traveler scoring calls | `filter.entities` per traveler with that traveler's signals, batch size from 1.7, `take` = batch size. | 3.3 | 🔴 Not Started | AGENT |
+| 3.5 | Naive group scoring | `src/domain/scoring`: percentile calibration, power mean (p = −2), Your Vibe % (cap 99), "especially for" (`c_i ≥ 0.85` and ≥ 0.10 above every other traveler). | 3.4 | 🔴 Not Started | AGENT |
+| 3.6 | Geo & scoring tests | Segment count and full coverage, vertex budget, WKT order, detour estimate, calibration, power mean, vibe % cap, especially-for. | 3.1, 3.2, 3.5 | 🔴 Not Started | AGENT |
 
-## Phase 4 – Itinerary, Scout & XP Logic (items 205, 207, 208 logic)
-
-| ID  | Task             | Description                             | Dependecies | Status | Assigned To |
-|-----|------------------|-----------------------------------------|-------------|----------|--------|
-| 4.1 | Naive itinerary | `src/domain/itinerary/naive.ts`: equal-distance days, top 3–4 per day (≤ 2 per bucket), ordered along route, estimated detours; unused pool for the Scout. | 3.2, 3.5 | 🔴 Not Started | AGENT |
-| 4.2 | Scout trigger | `src/domain/scout`: upcoming window, detour cap, local median/MAD z-score, thresholds, cooldown, template quest titles. | 4.1 | 🔴 Not Started | AGENT |
-| 4.3 | XP rules | `src/domain/xp`: Side Quest and check-in XP formulas. | None | 🔴 Not Started | AGENT |
-| 4.4 | Template "why" | Build a one-line explanation from per-traveler scores, top contributing favorites, tags and description snippet. | 3.5 | 🔴 Not Started | AGENT |
-| 4.5 | Logic tests | Day split, Scout fires on an outlier and respects window/cooldown/detour, no repeats, XP math, template why. | 4.1–4.4 | 🔴 Not Started | AGENT |
-
-## Phase 5 – Slice Harness & Live Run (items 205, 206, 208 UI)
+## Phase 4 – Itinerary, Scout, Why & XP Logic (items 205, 207, 208 logic)
 
 | ID  | Task             | Description                             | Dependecies | Status | Assigned To |
 |-----|------------------|-----------------------------------------|-------------|----------|--------|
-| 5.1 | Slice orchestration | `src/services/sliceTrip.ts`: route → corridor → scan → scores → itinerary → quest pool; reports calls used. | 3.3–3.5, 4.1 | 🔴 Not Started | AGENT |
-| 5.2 | Slice API routes | `POST /api/dev/slice/plan`, `POST /api/dev/slice/scout`, `POST /api/dev/slice/quest/:id`. | 5.1, 4.2, 4.3 | 🔴 Not Started | AGENT |
-| 5.3 | `/dev/slice` page | Map with numbered stop pins, day list with vibe % + detour + why, slider, ▶ auto-advance, skip to next stop; fix the RouteMap fit-bounds race. | 5.2 | 🔴 Not Started | AGENT |
-| 5.4 | Side Quest UI | Offer card (vibe %, per-traveler %, why, detour, XP) → accept/skip → jump to arrival → complete (sample photo, 1–5 rating) → XP → journal list; state in page + localStorage. | 5.3 | 🔴 Not Started | AGENT |
-| 5.5 | Sample photos | 3 bundled sample images in `/public/samples` (royalty-free / generated). | None | 🔴 Not Started | AGENT |
-| 5.6 | Live run & call budget | One live Anaheim → Denver plan (≤ 20 calls), then a cached re-run (0 calls). | 5.1 | 🔴 Not Started | AGENT |
-| 5.7 | Quality review | Print planned stops and Side Quest candidates; review for chains, casinos and genericness; tune tags and exclusions. | 5.6 | 🔴 Not Started | USER, AGENT |
-| 5.8 | Slice checkpoint | You walk the full loop on `/dev/slice` end to end. | 5.4, 5.7 | 🔴 Not Started | USER |
+| 4.1 | Naive itinerary | `src/domain/itinerary/naive.ts`: equal-distance days; per day candidates with `G ≥ 0.60` and detour ≤ 10 min; up to 4, at least 2 if available, ≤ 2 per bucket; ordered along the route; unused pool returned for the Scout. | 3.2, 3.5 | 🔴 Not Started | AGENT |
+| 4.2 | Scout trigger | `src/domain/scout`: window [+5, +80] km, detour 5–25 min; robust z = (G − median) / max(1.4826·MAD, 0.03); baseline ±150 km with ≥ 8 samples else trip-wide; fire at z ≥ 1.5 and G ≥ 0.80; 150 km cooldown; ≤ 2/day; template titles. | 4.1 | 🔴 Not Started | AGENT |
+| 4.3 | XP rules | `src/domain/xp`: Side Quest = 100 + clamped match bonus (0–50) + min(2·detour, 50); check-in = 50 + clamped match bonus. | None | 🔴 Not Started | AGENT |
+| 4.4 | Template "why" | `src/domain/explain`: per-traveler % + tag overlap with each traveler's favorites' tags + description/specialty-dish snippet; explainability only breaks ties. | 3.5, 2.3 | 🔴 Not Started | AGENT |
+| 4.5 | Logic tests | Day split rules; Scout fires on an outlier, MAD floor, small-sample fallback, window, cooldown, daily cap, no repeats; XP clamping; why text. | 4.1–4.4 | 🔴 Not Started | AGENT |
+
+## Phase 5 – Slice Harness, Live Run & Checkpoint (items 205, 206, 208 UI)
+
+| ID  | Task             | Description                             | Dependecies | Status | Assigned To |
+|-----|------------------|-----------------------------------------|-------------|----------|--------|
+| 5.1 | Slice orchestration | `src/services/sliceTrip.ts`: route → corridor → scan → scores → itinerary → Side Quest pool → why lines; returns the full Trip plus the call-meter report. | 3.3–3.5, 4.1, 4.4 | 🔴 Not Started | AGENT |
+| 5.2 | Plan API route | `POST /api/dev/slice/plan` (dev-route gated) returns the full Trip. | 5.1, 1.0 | 🔴 Not Started | AGENT |
+| 5.3 | `/dev/slice` page | Map with numbered pins, day list (vibe %, per-traveler %, detour, why), slider, ▶ auto-advance, skip to next stop; RouteMap fit-bounds race fixed. | 5.2 | 🔴 Not Started | AGENT |
+| 5.4 | Side Quest UI (client-side) | The Scout runs in the browser on the returned pool; offer card → accept/skip → jump to arrival → complete (sample photo, 1–5 rating) → XP → journal; state in page + localStorage. | 5.3, 4.2, 4.3 | 🔴 Not Started | AGENT |
+| 5.5 | Sample photos | 3 CC0 or generated images in `/public/samples` with sources in `public/samples/CREDITS.md`. | None | 🔴 Not Started | AGENT |
+| 5.6 | Pipeline end-to-end test | Vitest: `sliceTrip` on `MockQlooClient` with a stubbed route meets exit criteria 2–5 on mock data. | 5.1 | 🔴 Not Started | AGENT |
+| 5.7 | Live run & budget | One live Anaheim → Denver plan (≤ 20 calls), then a cached re-run (0 calls); print planned stops, the Side Quest pool and the z distribution. | 5.1, 1.5 | 🔴 Not Started | AGENT |
+| 5.8 | Quality review | Check exit criteria 1–5 (≤ 20 calls / 0 cached; 0 chains or casinos; ≥ 3 stops on ≥ 3 of 4 days; each traveler especially-for ≥ 1; ≥ 2 Side Quests fire); tune tags, exclusions and thresholds; review the picks together. | 5.7 | 🔴 Not Started | USER, AGENT |
+| 5.9 | Slice checkpoint | You walk the full loop on `/dev/slice` (exit criterion 6). | 5.4, 5.8 | 🔴 Not Started | USER |
 
 ## Phase 6 – Persistence (item 211)
 
 | ID  | Task             | Description                             | Dependecies | Status | Assigned To |
 |-----|------------------|-----------------------------------------|-------------|----------|--------|
-| 6.1 | Local Supabase | `supabase init` + `supabase start` (Docker); DB URLs in `.env.local`; `supabase/` config committed (no secrets). | 5.8 | 🔴 Not Started | AGENT |
-| 6.2 | Prisma setup | Install the latest stable Prisma 7.x; client singleton; `pnpm db:*` scripts. | 6.1 | 🔴 Not Started | AGENT |
-| 6.3 | Schema & migration | Models: User, Traveler, TasteSignal, Trip, TripTraveler, TripDay, Candidate, Stop, SideQuest, JournalEntry, XpEvent, QlooCache; ownership columns; first migration. | 6.2 | 🔴 Not Started | AGENT |
-| 6.4 | Postgres cache store | `PostgresCacheStore` implementing `CacheStore`; `QLOO_CACHE=postgres`. | 6.3 | 🔴 Not Started | AGENT |
-| 6.5 | Save & restore slice state | Plan saves trip, days, stops, candidates, quests; quest actions, journal and XP written to the DB; `/dev/slice?trip=<id>` restores state. | 6.3 | 🔴 Not Started | AGENT |
-| 6.6 | Persistence tests | Repository functions against the local DB (save/load trip, quest lifecycle, XP ledger totals). | 6.5 | 🔴 Not Started | AGENT |
+| 6.1 | Local Supabase | **Precondition: Docker Desktop running.** `supabase init` + `supabase start`; DB URLs in `.env.local`; `supabase/` config committed (no secrets). | 5.9 | 🔴 Not Started | AGENT |
+| 6.2 | Prisma 7 setup | Read Prisma 7 docs (`prisma.config.ts`, Postgres driver adapter); install the latest stable 7.x; client singleton; `pnpm db:*` scripts. | 6.1 | 🔴 Not Started | AGENT |
+| 6.3 | Schema & migration | Models: User, Traveler, TasteSignal, Trip, TripTraveler, TripDay, Candidate, Stop, SideQuest, JournalEntry, XpEvent, QlooCache, AppState; ownership columns; **first migration enables RLS with no policies on every table**. | 6.2 | 🔴 Not Started | AGENT |
+| 6.4 | RLS verification test | Calls the Supabase Data API with the anon key against every table and expects denial. | 6.3 | 🔴 Not Started | AGENT |
+| 6.5 | Postgres cache & quota | `PostgresCacheStore` (`QLOO_CACHE=postgres`); quota persisted in `AppState`. | 6.3 | 🔴 Not Started | AGENT |
+| 6.6 | Save & restore slice state | Plan saves trip, days, stops and candidates; `POST /api/dev/slice/quest/:id` (gated) persists accept/skip/complete, journal and XP; `/dev/slice?trip=<id>` restores state, reading `searchParams` inside `<Suspense>`. | 6.3 | 🔴 Not Started | AGENT |
+| 6.7 | Persistence tests | Repository round-trips, quest lifecycle, XP ledger totals. | 6.5, 6.6 | 🔴 Not Started | AGENT |
 
 ## Phase 7 – Guest Sessions (item 212)
 
 | ID  | Task             | Description                             | Dependecies | Status | Assigned To |
 |-----|------------------|-----------------------------------------|-------------|----------|--------|
-| 7.1 | Read Next 16 `proxy` docs | Read the bundled docs for `proxy` and cookies before implementing. | 6.1 | 🔴 Not Started | AGENT |
-| 7.2 | Supabase SSR clients + proxy | `@supabase/ssr` server/browser helpers; `src/proxy.ts` refreshes the session cookie. | 7.1 | 🔴 Not Started | AGENT |
-| 7.3 | Anonymous sign-in | First visit without a session → `signInAnonymously()`; `getCurrentUser()` supabase mode upserts the `User` row. | 7.2, 6.3 | 🔴 Not Started | AGENT |
-| 7.4 | Ownership checks | Every trip/quest/journal read and write is scoped to the current user; tests for cross-user access denial. | 7.3, 6.5 | 🔴 Not Started | AGENT |
-| 7.5 | Session verification | Fresh browser → new guest; reload keeps the same guest and trip; a second browser can't see the first guest's trip. | 7.4 | 🔴 Not Started | USER |
+| 7.1 | Read Next 16 `proxy` docs | Read the bundled docs for `proxy`, matchers and cookies before implementing. | 6.1 | 🔴 Not Started | AGENT |
+| 7.2 | Supabase SSR + proxy | `@supabase/ssr` helpers; `src/proxy.ts` is a **no-op unless `SESSION_MODE=supabase`**, its matcher skips static assets, and it only refreshes existing cookies. | 7.1 | 🔴 Not Started | AGENT |
+| 7.3 | Lazy anonymous sign-in | `POST /api/session` creates the anonymous user only on first write, checks the cookie first (no duplicates), client de-duplicates in-flight calls; `getCurrentUser()` supabase mode upserts `User`. | 7.2, 6.3 | 🔴 Not Started | AGENT |
+| 7.4 | Ownership checks | Every trip/quest/journal read and write scoped to the current user; tests for cross-user denial. | 7.3, 6.6 | 🔴 Not Started | AGENT |
+| 7.5 | Session verification | Fresh browser → new guest on first plan; reload keeps guest and trip; a second browser can't see the first guest's trip (exit criterion 7). | 7.4 | 🔴 Not Started | USER |
 
 ## Phase 8 – Wrap-up
 
 | ID  | Task             | Description                             | Dependecies | Status | Assigned To |
 |-----|------------------|-----------------------------------------|-------------|----------|--------|
-| 8.1 | Quality gate | `pnpm check` and `pnpm build` green; production still healthy on mock. | 7.4 | 🔴 Not Started | AGENT |
-| 8.2 | Findings & docs update | Update `docs/qloo-findings.md` (tag sets, call counts, quota used) and the README run instructions (local Supabase). | 8.1 | 🔴 Not Started | AGENT |
-| 8.3 | M1 exit check | The full loop runs on real Qloo data, persists, and works for an anonymous guest; calls per plan ≤ 20. | 8.2, 7.5 | 🔴 Not Started | AGENT |
+| 8.1 | Quality gate & production smoke | `pnpm check` and `pnpm build` green; on production: `/dev/*` and `/api/dev/*` return 404, `/api/health` ok, the proxy is a no-op (pages load with `SESSION_MODE=dev`). | 7.4 | 🔴 Not Started | AGENT |
+| 8.2 | Findings & docs update | `docs/qloo-findings.md` (tag sets, batch size, call counts, quota used); README run instructions (local Supabase, `DEV_ROUTES`). | 8.1 | 🔴 Not Started | AGENT |
+| 8.3 | M1 exit check | All 7 exit criteria in `design.md` met (or the slip rule applied and recorded). | 8.2, 7.5 | 🔴 Not Started | AGENT |

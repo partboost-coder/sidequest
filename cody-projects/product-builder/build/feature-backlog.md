@@ -36,12 +36,12 @@ M0 (Oct 6–7): Repo, deploy pipeline, adapter interfaces and mocks so the verti
 | 108 | Session bootstrap (non-blocking) | Attempt Supabase project + anonymous sign-in; if setup causes friction, use a seeded local session with a fixed user ID and move on. Shipped as dev sessions; Supabase anonymous sessions moved to 212 (local Supabase). | Medium | 🟢 Completed |
 
 ## v0.2.0-vertical-slice - 🟡 In Progress
-M1 (Oct 8–12): The ugliest complete loop end to end, then real persistence and the Qloo spike.
+M1 (revised Oct 13–15): The ugliest complete loop on real Qloo data, then persistence and guest sessions (slip rule: 212 then 211 may move to v0.3.0).
 
 | ID  | Feature                 | Description                              | Priority | Status |
 |-----|-------------------------|------------------------------------------|----------|--------|
 | 201 | Hardcoded demo crew | Two demo travelers (brief's tastes + 3–4 cross-domain favorites each) as static profiles. | High | 🔴 Not Started |
-| 202 | Route corridor geometry | Segment the route (~60–90 min), buffer + simplify into lon-first WKT polygons with a vertex budget; progress-along-route helpers. | High | 🔴 Not Started |
+| 202 | Route corridor geometry | Segment the route (~2.5 h, revised for quota), buffer + simplify into lon-first WKT polygons with a vertex budget; progress-along-route helpers. | High | 🔴 Not Started |
 | 203 | Corridor scan (naive) | Qloo candidate generation per segment using union signals; store candidate pool. | High | 🔴 Not Started |
 | 204 | Naive group scoring | Per-traveler scoring + simple combined score; enough to rank candidates. | High | 🔴 Not Started |
 | 205 | Ugly itinerary | Days split naively; stops listed per day and plotted on the map. | High | 🔴 Not Started |
@@ -49,12 +49,12 @@ M1 (Oct 8–12): The ugliest complete loop end to end, then real persistence and
 | 207 | Scout trigger (basic) | Unused high-scoring candidate near upcoming progress fires a Side Quest offer. | High | 🔴 Not Started |
 | 208 | Side Quest accept/complete | Accept/skip, complete with sample photo + rating, award XP, write journal entry. | High | 🔴 Not Started |
 | 209 | Qloo API spike (S1–S8) | Once the key arrives: test polygon `filter.location` + URL limits, explainability, heatmap, `filter.entities` scoring, `/search` quality, place tags, affinity distribution/latency, tag inference. Record findings in `docs/qloo-findings.md` and fixtures. | High | 🟢 Completed |
-| 210 | Real Qloo client + cache | `RealQlooClient` with concurrency limit, retry/backoff, timeouts; Postgres-backed cache; `record` mode producing fixtures. | High | 🔴 Not Started |
-| 211 | Persistence & data model | Prisma schema in Supabase Postgres (users, travelers, signals, trips, days, candidates, stops, side quests, journal, XP ledger, agent runs/events, cache); slice state moved to the DB. | High | 🔴 Not Started |
+| 210 | Real Qloo client + cache | `RealQlooClient` with 4 req/s throttle, retry/backoff, timeouts, quota guard; file cache in development (gitignored), Postgres cache in 211; recordings never committed. | High | 🔴 Not Started |
+| 211 | Persistence & data model | Prisma schema in Supabase Postgres (users, travelers, signals, trips, days, candidates, stops, side quests, journal, XP ledger, cache, app state) with RLS deny-all; agent runs/events move to v0.3.0; slice state moved to the DB. | High | 🔴 Not Started |
 | 212 | Anonymous guest sessions | Local Supabase (CLI + Docker) with anonymous users via `@supabase/ssr` and Next 16 `proxy`; replaces dev sessions; ownership checks on every row. Hosted Supabase project before deploying persistence. | High | 🔴 Not Started |
 
 ## v0.3.0-taste-engine-planner - 🔴 Not Started
-M2 (Oct 13–16): Real recommendation quality, a believable multi-day plan, and the visible Planner agent.
+M2 (revised Oct 16–19): Real recommendation quality, a believable multi-day plan, and the visible Planner agent.
 
 | ID  | Feature                 | Description                              | Priority | Status |
 |-----|-------------------------|------------------------------------------|----------|--------|
@@ -67,12 +67,12 @@ M2 (Oct 13–16): Real recommendation quality, a believable multi-day plan, and 
 | 307 | Exact detours | Mapbox waypoint/matrix detours for selected stops and Side Quest candidates. | Medium | 🔴 Not Started |
 | 308 | Grounded explanations | Haiku "why" lines from structured facts (explainability, per-traveler contributors), batched per day, with validator + template fallback. | High | 🔴 Not Started |
 | 309 | Planner agent | Vercel AI SDK + Sonnet 5.5 with tools (context, scan, overnight options, build, evaluate, alternatives, apply change, finalize); baseline-first, ≤2 fix rounds, step budget. | High | 🔴 Not Started |
-| 310 | Activity stream | Tool-emitted, user-facing agent events persisted and streamed; resumable after disconnect. | High | 🔴 Not Started |
+| 310 | Activity stream | `AgentRun`/`AgentEvent` tables (moved from 211); tool-emitted, user-facing agent events persisted and streamed; resumable after disconnect. | High | 🔴 Not Started |
 | 311 | Demo seed & clone | `seed-demo` runs the real pipeline for Anaheim → Denver; "Try the demo trip" clones it into the guest's account; event replay. | High | 🔴 Not Started |
 | 312 | Golden trips (2 routes) | Quality report for Anaheim → Denver and Phoenix → Moab; tune constants; decide on B-01 escalation. | High | 🔴 Not Started |
 
 ## v0.4.0-onboarding-trip-ui - 🔴 Not Started
-M3 (Oct 17–19): "Teach us your vibe," the crew reveal, and the polished trip view — Plan Your Own Trip works end to end.
+M3 (revised Oct 20–22): "Teach us your vibe," the crew reveal, and the polished trip view — Plan Your Own Trip works end to end.
 
 | ID  | Feature                 | Description                              | Priority | Status |
 |-----|-------------------------|------------------------------------------|----------|--------|
@@ -89,7 +89,7 @@ M3 (Oct 17–19): "Teach us your vibe," the crew reveal, and the polished trip v
 | 411 | Plan Your Own Trip E2E | Onboarding → setup → live planning → trip view works for arbitrary US routes. | High | 🔴 Not Started |
 
 ## v0.5.0-drive-scout-journal - 🔴 Not Started
-M4 (Oct 20–23): Simulate Drive, the Scout, the full Side Quest loop, and the journal — demo path ≤90 s.
+M4 (revised Oct 23–26): Simulate Drive, the Scout, the full Side Quest loop, and the journal — demo path ≤90 s.
 
 | ID  | Feature                 | Description                              | Priority | Status |
 |-----|-------------------------|------------------------------------------|----------|--------|
@@ -105,7 +105,7 @@ M4 (Oct 20–23): Simulate Drive, the Scout, the full Side Quest loop, and the j
 | 510 | Demo path E2E | Playwright test: home → demo → Side Quest complete → journal, no login, timed ≤90 s; re-check both golden trips. | High | 🔴 Not Started |
 
 ## v0.6.0-bonus-scope - 🔴 Not Started
-M5 (Oct 24–26), bonus only: start after v0.5.0 exit criteria are met; feature freeze end of Oct 26 regardless.
+M5, bonus only: only if v0.5.0 finishes before Oct 26; feature freeze end of Oct 26 regardless.
 
 | ID  | Feature                 | Description                              | Priority | Status |
 |-----|-------------------------|------------------------------------------|----------|--------|

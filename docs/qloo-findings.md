@@ -26,7 +26,10 @@ Living record of what the Qloo hackathon API actually does, so Sidequest is desi
 |---|---|---|
 | `x-second-ratelimit-limit` | **5** | 5 requests per second; exceeding it returns `{"error_msg":"Rate limit exceeded"}` |
 | `x-month-ratelimit-limit` | **10,000** | Monthly quota per key |
+| `x-month-ratelimit-remaining` | e.g. 9,986 | Remaining this month; read on every response by the quota guard |
 | `x-month-ratelimit-reset` | ~30 days | Resets around 2026-11-11, which is mid-judging |
+
+The HTTP status of a rate-limited response wasn't recorded (the body was `{"error_msg":"Rate limit exceeded"}`), so the client detects it by status 429 **or** that body.
 
 **This is the binding constraint.** Throttle to ≤4 req/s, cache everything, record fixtures during development, budget calls per trip (target ≤20), cap live planning, and ask in Discord #api-help for a quota increase before judging.
 
