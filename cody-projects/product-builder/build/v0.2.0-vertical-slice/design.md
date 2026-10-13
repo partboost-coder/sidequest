@@ -94,15 +94,15 @@ _Shared technical considerations across all features in this version._
   - `filter.type=urn:entity:place`, `filter.location=<segment WKT>`
   - `signal.interests.entities=<union of all travelers' favorites>`
   - `filter.tags=<curated bucket tags>` and `filter.exclude.tags=<casino, hotel, gas station, fast food…>` (both validated, stored in `src/config/buckets.ts`)
-  - `diversify.by=properties.geocode.city`, `diversify.take=3`, **`take=20`**, `feature.explainability=true`
+  - `diversify.by=properties.geocode.city`, `diversify.take=3`, **`take=15`**, `feature.explainability=true`
 - **Post-filters run before scoring [QA-6]:** drop `is_closed`, chains (a curated list of ~100 names, normalized matching) and duplicates.
 - **Budget:** 7 × 2 = **14 scan calls**.
 
 ### 204: Naive group scoring (`src/domain/scoring`)
 - **Per-traveler scores:** one `filter.entities` call per traveler with only that traveler's favorites as signals, **`take` = batch size**.
-- **Batch size is verified in Phase 1 [QA-6]:** one live call with 100 IDs and `take=100`, checking the URL length and that all 100 come back. If it fails, use 50.
-- **Budget:** up to 280 raw candidates, about 150–200 after post-filters → **2 batches × 2 travelers = 4 calls at 100/batch; 8 calls at 50**.
-- **Total:** **≈ 18 calls per trip at 100/batch, ≈ 22 at 50.** If batches have to drop to 50, use `take=15` for the scan to stay ≤ 20.
+- **Batch size (verified in task 1.7):** Qloo caps `take` at 50, so batches are **≤ 50 IDs** (a 50-ID batch was verified: 2.0 KB URL, all 50 returned).
+- **Scoring cap:** only the **top 100 candidates** by group-query affinity (after post-filters) are scored per traveler → **2 batches × 2 travelers = 4 calls**. Lower-ranked candidates are dropped; they would rarely make the itinerary or the Side Quest pool.
+- **Total:** 14 scan calls (`take=15`) + 4 scoring calls ≈ **18 calls per trip** (≤ 20 ✅).
 - **Calibration:** `c_i` = percentile rank of traveler *i*'s affinity within this trip's pool (affinities are compressed at ~0.71–0.92).
 - **Group fit** `G` = power mean of `c_i` with p = −2. **Your Vibe %** = `round(100·G)`, capped at 99.
 - **"Especially for" [QA-16]:** traveler *i* if `c_i ≥ 0.85` **and** `c_i` is at least **0.10 above every other traveler's score**.
@@ -177,7 +177,7 @@ _Shared any other technical information that might be relevant to building this 
 | Plan / backlog said | v0.2.0 does | Why |
 |---|---|---|
 | Corridor segments of 60–90 min | ~2.5 h segments | Halves Qloo calls under the 10k/month quota; S1 showed long polygons work |
-| Candidate queries `take≈30–50` | `take=20` per segment × bucket (15 if batches fall to 50) | Keeps the plan ≤ 20 calls; diversify keeps variety |
+| Candidate queries `take≈30–50` | `take=15` per segment × bucket; only the top 100 candidates are scored | Qloo caps `take` at 50, so scoring batches are ≤ 50; keeps the plan ≤ 20 calls |
 | Qloo concurrency 6 | Throttle 4 req/s, concurrency 4 | Observed limit is 5 req/s |
 | Postgres cache in 210; `record` mode produces fixtures | File cache in development, Postgres in 211; recordings stay local and gitignored | Raw Qloo data must not be committed to the public repo |
 | `AgentRun` / `AgentEvent` in 211 | Moved to v0.3.0 (with the Planner agent) | No agent exists yet |

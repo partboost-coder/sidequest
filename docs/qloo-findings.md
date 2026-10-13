@@ -46,6 +46,15 @@ The HTTP status of a rate-limited response wasn't recorded (the body was `{"erro
 | S7  | Affinity distribution; latency         | Affinities compressed: ~0.71–0.92 in corridor results. Latency 0.15–0.85 s per call (search fastest).                                                                                                                                                                                                                                                                                                                    | Percentile calibration per trip is required. Parallelize at ≤4 req/s.                                                            |
 | S8  | Taste-card tags from favorites         | ✅ `/search` results already include rich tags (e.g. Phoebe Bridgers → Indie, Folk, Indie-Folk, plus Qloo audience tags like "Introspective").                                                                                                                                                                                                                                                                           | Build taste cards from favorites' own tags (no extra calls) + tags on top insights results.                                      |
 
+### Live client verification (2026-10-13, task 1.7)
+
+- **`take` is capped at 50.** Requests with `take > 50` return HTTP 400 ("take must be an integer value between 1 and 50"). Scoring batches are therefore **≤ 50 IDs**.
+- **50-ID `filter.entities` batch verified:** 2,012-character URL, all 50 requested IDs returned with affinities.
+- **The live API returns `null` for absent fields** (e.g. `price_level`, `geocode.name`, `specialty_dishes`). The normalizer strips nulls before parsing.
+- **`x-month-ratelimit-remaining` confirmed** on every response; persisted by the quota guard (9,966 remaining after verification).
+- Rate-limit HTTP status: not observed yet (no natural rate limit occurred). The client handles 429 or the `error_msg` body.
+- File cache re-run: 0 live calls.
+
 ### Recommendation quality findings
 
 - **An unfiltered group query is generic:** the top results for Barstow → Las Vegas were casinos, a sky lounge and Luxor. Must query **per bucket** with curated `filter.tags`.

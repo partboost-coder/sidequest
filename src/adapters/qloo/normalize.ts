@@ -6,6 +6,22 @@ import { rawInsightsResponseSchema, rawSearchResponseSchema, rawTagsResponseSche
  * The shape is unconfirmed until spike S1–S8, so parsing is tolerant.
  */
 
+/**
+ * Qloo returns `null` (not a missing key) for absent fields (e.g. price_level, geocode.name,
+ * specialty_dishes). Strip nulls recursively so every optional schema field accepts both.
+ */
+export function stripNulls(value: unknown): unknown {
+  if (Array.isArray(value)) return value.filter((v) => v !== null).map(stripNulls);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .filter(([, v]) => v !== null)
+        .map(([k, v]) => [k, stripNulls(v)]),
+    );
+  }
+  return value;
+}
+
 export function normalizeTag(raw: RawTag): QlooTag | undefined {
   const id = raw.tag_id ?? raw.id;
   if (!id) return undefined;
@@ -77,7 +93,7 @@ export function normalizeEntity(raw: RawEntity): QlooEntity {
 }
 
 export function normalizeInsightsResponse(json: unknown): InsightsResult {
-  const parsed = rawInsightsResponseSchema.parse(json);
+  const parsed = rawInsightsResponseSchema.parse(stripNulls(json));
   return {
     entities: (parsed.results?.entities ?? []).map(normalizeEntity),
     durationMs: parsed.duration,
@@ -85,12 +101,12 @@ export function normalizeInsightsResponse(json: unknown): InsightsResult {
 }
 
 export function normalizeSearchResponse(json: unknown): QlooEntity[] {
-  const parsed = rawSearchResponseSchema.parse(json);
+  const parsed = rawSearchResponseSchema.parse(stripNulls(json));
   return (parsed.results ?? []).map(normalizeEntity);
 }
 
 export function normalizeTagsResponse(json: unknown): QlooTag[] {
-  const parsed = rawTagsResponseSchema.parse(json);
+  const parsed = rawTagsResponseSchema.parse(stripNulls(json));
   const list = Array.isArray(parsed.results) ? parsed.results : (parsed.results?.tags ?? []);
   return list.map(normalizeTag).filter((t): t is QlooTag => t !== undefined);
 }

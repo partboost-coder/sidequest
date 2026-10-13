@@ -448,3 +448,32 @@ describe("normalize: place properties (shapes observed in the spike)", () => {
     expect(entities[0].description).toContain("mock data");
   });
 });
+
+describe("normalize: nulls from the live API", () => {
+  it("treats null fields as missing", () => {
+    const [place] = normalizeInsightsResponse({
+      success: true,
+      results: {
+        entities: [
+          {
+            entity_id: "p1",
+            name: "Null-ish Place",
+            type: "urn:entity:place",
+            location: { lat: 36.1, lon: -115.1, geohash: null },
+            properties: {
+              price_level: null,
+              specialty_dishes: null,
+              geocode: { name: null, city: "Las Vegas", admin1_region: "Nevada" },
+              tags: null,
+            },
+            tags: [null, { tag_id: "t1", name: "Coffee" }],
+            query: { affinity: 0.8, explainability: null },
+          },
+        ],
+      },
+    }).entities;
+    expect(place).toMatchObject({ id: "p1", city: "Las Vegas", tags: [{ id: "t1" }] });
+    expect(place.priceLevel).toBeUndefined();
+    expect(place.specialtyDishes).toBeUndefined();
+  });
+});
