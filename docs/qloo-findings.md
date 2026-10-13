@@ -63,6 +63,14 @@ The HTTP status of a rate-limited response wasn't recorded (the body was `{"erro
 - Searching with `types` fixes the disambiguation from S5: "Pho 79" (type place) → Phở 79, Westminster CA.
 - Favorites' own tags are cross-domain (e.g. Wikipedia categories for brands, plot keywords for films) and rarely overlap with place tags.
 
+### First live demo-route scan (2026-10-13, Phase 3)
+- Anaheim → Denver: 7 segments (WKT ≤ 740 chars), **18 calls, ~7 s** cold; 0 calls cached.
+- 211 raw results → 160 kept (9 chains dropped: Starbucks ×3, Denny's, Chili's, Dave & Buster's ×2, Barnes & Noble, Urban Outfitters).
+- Most segments return a full 15 per bucket; **the San Rafael Swell segment (km 930–1163) has only 2 + 2**. That is genuinely sparse.
+- **Scoring must be balanced per segment:** ranking the top 100 trip-wide gave LA/Vegas/Denver 85 of 100 slots. Per-segment selection (~14 each) surfaces rural picks such as Mystic Hot Springs, Fishlake National Forest and San Rafael Reef (Matt 90–98).
+- Group fit is honestly lower on rural stretches (both travelers rarely love the same small-town place). Watch this in the 5.8 quality review.
+- Oddities to tune in 5.8: `tourist_attraction` pulls in golf clubs; cocktail bars (Death & Co, Mezcla) land in the food bucket.
+
 ### Recommendation quality findings
 
 - **An unfiltered group query is generic:** the top results for Barstow → Las Vegas were casinos, a sky lounge and Luxor. Must query **per bucket** with curated `filter.tags`.

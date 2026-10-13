@@ -15,6 +15,32 @@ export interface ScoringOptions {
 }
 
 /**
+ * Picks which candidates to spend scoring calls on: the best few from *every* segment, then the
+ * best remaining overall. Ranking the whole trip at once lets metro areas (LA, Las Vegas, Denver)
+ * take every slot and leaves rural stretches with nothing to plan.
+ */
+export function selectForScoring(candidates: Candidate[], maxCandidates: number): Candidate[] {
+  const byAffinity = (a: Candidate, b: Candidate) => b.groupQueryAffinity - a.groupQueryAffinity;
+  const segments = [...new Set(candidates.map((c) => c.segmentIndex))];
+  if (candidates.length <= maxCandidates || segments.length === 0)
+    return [...candidates].sort(byAffinity);
+  const perSegment = Math.floor(maxCandidates / segments.length);
+  const chosen = new Set<string>();
+  for (const seg of segments) {
+    candidates
+      .filter((c) => c.segmentIndex === seg)
+      .sort(byAffinity)
+      .slice(0, perSegment)
+      .forEach((c) => chosen.add(c.id));
+  }
+  for (const c of [...candidates].sort(byAffinity)) {
+    if (chosen.size >= maxCandidates) break;
+    chosen.add(c.id);
+  }
+  return candidates.filter((c) => chosen.has(c.id)).sort(byAffinity);
+}
+
+/**
  * Scores the top candidates separately for each traveler (`filter.entities` + that traveler's
  * favorites only), then applies naive group scoring. Cost: ceil(N / 50) calls per traveler.
  */
@@ -25,9 +51,7 @@ export async function scoreForTravelers(
   options: ScoringOptions = {},
 ): Promise<Candidate[]> {
   const { maxCandidates = 100, meter, allowReserve } = options;
-  const top = [...candidates]
-    .sort((a, b) => b.groupQueryAffinity - a.groupQueryAffinity)
-    .slice(0, maxCandidates);
+  const top = selectForScoring(candidates, maxCandidates);
   const batches: Candidate[][] = [];
   for (let i = 0; i < top.length; i += SCORING_BATCH) batches.push(top.slice(i, i + SCORING_BATCH));
 

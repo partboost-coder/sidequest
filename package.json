@@ -14,7 +14,8 @@
     "format:check": "prettier --check .",
     "check": "pnpm lint && pnpm typecheck && pnpm test",
     "qloo:verify": "tsx --env-file=.env.local scripts/qloo-verify.ts",
-    "qloo:favorites": "tsx --env-file=.env.local scripts/pick-favorites.ts"
+    "qloo:favorites": "tsx --env-file=.env.local scripts/pick-favorites.ts",
+    "qloo:scan-demo": "tsx --env-file=.env.local scripts/scan-demo.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

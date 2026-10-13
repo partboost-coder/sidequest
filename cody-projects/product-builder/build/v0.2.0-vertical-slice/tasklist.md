@@ -42,12 +42,12 @@ Decisions: you pick the demo favorites from real search results; travelers are "
 
 | ID  | Task             | Description                             | Dependecies | Status | Assigned To |
 |-----|------------------|-----------------------------------------|-------------|----------|--------|
-| 3.1 | Corridor segmentation | `src/domain/geo/corridor.ts`: ~2.5 h drive-time segments, 15 km buffer, ≤ 40 vertices, lon-first WKT. | None | 🔴 Not Started | AGENT |
-| 3.2 | Route progress helpers | `alongKm`, `pointAt`, `progressFraction`, `segmentFor`; **move `estimateDetourMin` into `domain/geo`** (adapter re-exports it). | 3.1 | 🔴 Not Started | AGENT |
-| 3.3 | Corridor scan service | `src/services/corridorScan.ts`: segment × bucket Insights calls (union signals, bucket tags, exclusions, diversify, `take=15`, explainability); post-filters **before** scoring; de-duplicate; uses the request's `CallMeter`. | 1.5, 1.7, 2.3, 2.4, 2.5, 3.1 | 🔴 Not Started | AGENT |
-| 3.4 | Per-traveler scoring calls | `filter.entities` per traveler with that traveler's signals, top 100 candidates only, batches of 50 (Qloo caps `take` at 50), `take` = batch size. | 3.3 | 🔴 Not Started | AGENT |
-| 3.5 | Naive group scoring | `src/domain/scoring`: percentile calibration, power mean (p = −2), Your Vibe % (cap 99), "especially for" (`c_i ≥ 0.85` and ≥ 0.10 above every other traveler). | 3.4 | 🔴 Not Started | AGENT |
-| 3.6 | Geo & scoring tests | Segment count and full coverage, vertex budget, WKT order, detour estimate, calibration, power mean, vibe % cap, especially-for. | 3.1, 3.2, 3.5 | 🔴 Not Started | AGENT |
+| 3.1 | Corridor segmentation | `src/domain/geo/corridor.ts`: ~2.5 h drive-time segments, 15 km buffer, ≤ 40 vertices, lon-first WKT. | None | 🟢 Completed | AGENT |
+| 3.2 | Route progress helpers | `alongKm`, `pointAt`, `progressFraction`, `segmentFor`; **move `estimateDetourMin` into `domain/geo`** (adapter re-exports it). | 3.1 | 🟢 Completed | AGENT |
+| 3.3 | Corridor scan service | `src/services/corridorScan.ts`: segment × bucket Insights calls (union signals, bucket tags, exclusions, diversify, `take=15`, explainability); post-filters **before** scoring; de-duplicate; uses the request's `CallMeter`. | 1.5, 1.7, 2.3, 2.4, 2.5, 3.1 | 🟢 Completed | AGENT |
+| 3.4 | Per-traveler scoring calls | `filter.entities` per traveler with that traveler's signals, top 100 candidates only, batches of 50 (Qloo caps `take` at 50), `take` = batch size. | 3.3 | 🟢 Completed | AGENT |
+| 3.5 | Naive group scoring | `src/domain/scoring`: percentile calibration, power mean (p = −2), Your Vibe % (cap 99), "especially for" (`c_i ≥ 0.85` and ≥ 0.10 above every other traveler). | 3.4 | 🟢 Completed | AGENT |
+| 3.6 | Geo & scoring tests | Segment count and full coverage, vertex budget, WKT order, detour estimate, calibration, power mean, vibe % cap, especially-for. | 3.1, 3.2, 3.5 | 🟢 Completed | AGENT |
 
 ## Phase 4 – Itinerary, Scout, Why & XP Logic (items 205, 207, 208 logic)
 
